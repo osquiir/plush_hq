@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="mb-1">Good morning 👋</h1>
+        <p class="text-muted mb-0">
+            Here is what needs your attention today.
+        </p>
+    </div>
+
+    <button class="btn btn-dark">
+        + New Release
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="dashboard-stat-card">
+            <p>Active Releases</p>
+            <h2>12</h2>
+            <small>Currently in progress</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-stat-card">
+            <p>On Track</p>
+            <h2>9</h2>
+            <small>No immediate action needed</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-stat-card">
+            <p>Need Attention</p>
+            <h2>3</h2>
+            <small>Missing or delayed items</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-stat-card">
+            <p>Releasing Soon</p>
+            <h2>2</h2>
+            <small>Within the next 7 days</small>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h3 class="mb-1">Today's Priorities</h3>
+                    <p class="text-muted mb-0">
+                        Items that may affect upcoming releases.
+                    </p>
+                </div>
+
+                {% for priority in priorities %}
+
+                <div class="priority-item">
+                    <div class="priority-indicator bg-{{ priority.class_name }}"></div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ priority.artist }}</strong>
+
+                            <span class="badge text-bg-{{ priority.class_name }}">
+                                {{ priority.level }}
+                            </span>
+                        </div>
+
+                        <p class="text-muted mb-0 mt-1">
+                            {{ priority.message }}
+                        </p>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+
+                <h3 class="mb-1">AI Insights</h3>
+                <p class="text-muted">
+                    Automatic overview of current release activity.
+                </p>
+
+                <div class="ai-insight-box mb-3">
+                    <small>Today's Focus</small>
+                    <p>Finalize the artwork for After Hours.</p>
+                </div>
+
+                <div class="ai-insight-box mb-3">
+                    <small>Potential Risk</small>
+                    <p>Blue Moon is missing required metadata.</p>
+                </div>
+
+                <div class="ai-insight-box">
+                    <small>Recommended Action</small>
+                    <p>Confirm artwork approval before Friday.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="mb-1">Release Pipeline</h3>
+                <p class="text-muted mb-0">
+                    Current progress across active releases.
+                </p>
+            </div>
+
+            <a href="/releases" class="btn btn-outline-dark btn-sm">
+                View All
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Release</th>
+                        <th>Stage</th>
+                        <th>Release Date</th>
+                        <th style="min-width: 180px;">Progress</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for release in releases %}
+
+                    <tr>
+                        <td>{{ release.artist }}</td>
+                        <td>
+                            <strong>{{ release.title }}</strong>
+                        </td>
+                        <td>{{ release.stage }}</td>
+                        <td>{{ release.release_date }}</td>
+
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div
+                                        class="progress-bar bg-dark"
+                                        style="width: {{ release.progress }}%;">
+                                    </div>
+                                </div>
+
+                                <small>{{ release.progress }}%</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="badge {{ release.status_class }}">
+                                {{ release.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a
+                                href="/releases/{{ release.id }}"
+                                class="btn btn-sm btn-outline-secondary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <h3 class="mb-1">Recent Activity</h3>
+        <p class="text-muted mb-3">
+            Latest changes made by the team.
+        </p>
+
+        {% for activity in activities %}
+
+        <div class="activity-item">
+            <small>{{ activity.time }}</small>
+            <p>{{ activity.message }}</p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock %}

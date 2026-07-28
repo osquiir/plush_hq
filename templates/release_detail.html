@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <a href="/dashboard" class="text-decoration-none text-secondary">
+            ← Back to Dashboard
+        </a>
+
+        <h1 class="mt-3 mb-1">{{ release.title }}</h1>
+
+        <p class="text-muted mb-0">
+            {{ release.artist }} · {{ release.type }}
+        </p>
+    </div>
+
+    <span class="badge bg-warning text-dark fs-6">
+        {{ release.status }}
+    </span>
+</div>
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <p class="text-muted mb-1">Current Stage</p>
+            <h3 class="mb-3">{{ release.stage }}</h3>
+
+            <div class="progress" style="height: 14px;">
+                <div
+                    class="progress-bar bg-dark"
+                    role="progressbar"
+                    style="width: {{ release.progress }}%;"
+                    aria-valuenow="{{ release.progress }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <p class="text-muted mb-1">Overall Progress</p>
+            <h2 class="mb-0">{{ release.progress }}%</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-bottom">
+        <ul class="nav nav-tabs card-header-tabs" id="releaseTabs" role="tablist">
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link active"
+                    id="overview-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#overview"
+                    type="button"
+                    role="tab">
+                    Overview
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="workflow-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#workflow"
+                    type="button"
+                    role="tab">
+                    Workflow
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="files-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#files"
+                    type="button"
+                    role="tab">
+                    Files
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="metadata-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#metadata"
+                    type="button"
+                    role="tab">
+                    Metadata
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="marketing-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#marketing"
+                    type="button"
+                    role="tab">
+                    Marketing
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="notes-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#notes"
+                    type="button"
+                    role="tab">
+                    Notes
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="analytics-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#analytics"
+                    type="button"
+                    role="tab">
+                    Analytics
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="ai-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#ai"
+                    type="button"
+                    role="tab">
+                    AI Insights
+                </button>
+            </li>
+
+        </ul>
+    </div>
+
+    <div class="card-body">
+        <div class="tab-content" id="releaseTabsContent">
+
+            <div
+                class="tab-pane fade show active"
+                id="overview"
+                role="tabpanel"
+                aria-labelledby="overview-tab">
+                {% include "tabs/overview.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="workflow"
+                role="tabpanel"
+                aria-labelledby="workflow-tab">
+                {% include "tabs/workflow.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="files"
+                role="tabpanel"
+                aria-labelledby="files-tab">
+                {% include "tabs/files.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="metadata"
+                role="tabpanel"
+                aria-labelledby="metadata-tab">
+                {% include "tabs/metadata.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="marketing"
+                role="tabpanel"
+                aria-labelledby="marketing-tab">
+                {% include "tabs/marketing.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="notes"
+                role="tabpanel"
+                aria-labelledby="notes-tab">
+                {% include "tabs/notes.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="analytics"
+                role="tabpanel"
+                aria-labelledby="analytics-tab">
+                {% include "tabs/analytics.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="ai"
+                role="tabpanel"
+                aria-labelledby="ai-tab">
+                {% include "tabs/ai.html" %}
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
