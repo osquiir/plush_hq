@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a
+        href="{{ url_for('releases.releases') }}"
+        class="text-decoration-none text-secondary"
+    >
+        ← Back to Releases
+    </a>
+
+    <h1 class="mt-3 mb-1">New Release</h1>
+
+    <p class="text-muted">
+        Add the basic information for this release.
+        The standard workflow will be created automatically.
+    </p>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endwith %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <h4 class="mb-3">Artist Information</h4>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Artist Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="artist_name"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Artist Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="artist_email"
+                        class="form-control"
+                    >
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <h4 class="mb-3">Release Information</h4>
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Release Title *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Release Type
+                    </label>
+
+                    <select
+                        name="release_type"
+                        class="form-select"
+                    >
+                        <option value="Single">Single</option>
+                        <option value="EP">EP</option>
+                        <option value="Album">Album</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Release Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="release_date"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Initial Budget
+                    </label>
+
+                    <input
+                        type="number"
+                        name="budget"
+                        class="form-control"
+                        min="0"
+                        step="0.01"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Current Stage
+                    </label>
+
+                    <select
+                        name="current_stage"
+                        class="form-select"
+                    >
+                        <option value="Deal signed">
+                            Deal signed
+                        </option>
+
+                        <option value="Song development">
+                            Song development
+                        </option>
+
+                        <option value="Master delivered">
+                            Master delivered
+                        </option>
+
+                        <option value="Artwork">
+                            Artwork
+                        </option>
+
+                        <option value="Marketing rollout">
+                            Marketing rollout
+                        </option>
+
+                        <option value="Song ingestion">
+                            Song ingestion
+                        </option>
+
+                        <option value="Playlist pitching">
+                            Playlist pitching
+                        </option>
+
+                        <option value="Ready for release">
+                            Ready for release
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <a
+                    href="{{ url_for('releases.releases') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-dark"
+                >
+                    Create Release
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

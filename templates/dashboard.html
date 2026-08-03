@@ -10,9 +10,12 @@
         </p>
     </div>
 
-    <button class="btn btn-dark">
+    <a
+        href="{{ url_for('releases.create_release') }}"
+        class="btn btn-dark"
+    >
         + New Release
-    </button>
+    </a>
 </div>
 
 <div class="row g-3 mb-4">

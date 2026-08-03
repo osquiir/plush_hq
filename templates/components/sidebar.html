@@ -1,8 +1,23 @@
 <div class="sidebar">
     <h2>Plush</h2>
-    <a href="/dashboard">Dashboard</a>
-    <a href="/releases">Releases</a>
-    <a href="#">Artists</a>
-    <a href="#">Files</a>
-    <a href="#">AI Summary</a>
+
+    <a href="{{ url_for('dashboard.dashboard') }}">
+        Dashboard
+    </a>
+
+    <a href="{{ url_for('releases.releases') }}">
+        Releases
+    </a>
+
+    <a href="#">
+        Artists
+    </a>
+
+    <a href="#">
+        Files
+    </a>
+
+    <a href="#">
+        AI Insights
+    </a>
 </div>

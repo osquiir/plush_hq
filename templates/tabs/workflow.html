@@ -1,30 +1,81 @@
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Release Workflow</h4>
+
         <p class="text-muted mb-0">
-            Track each step required before release.
+            Complete each step as the release moves forward.
         </p>
     </div>
+
+    <span class="badge bg-dark">
+        {{ release.progress }}% Complete
+    </span>
 </div>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endwith %}
+
 {% for task in tasks %}
-<div class="d-flex justify-content-between align-items-center border-bottom py-3">
+
+<div class="workflow-task d-flex justify-content-between align-items-center border-bottom py-3">
+
+    <div class="d-flex align-items-center">
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'releases.toggle_task',
+                task_id=task.id
+            ) }}"
+            class="me-3"
+        >
+            <button
+                type="submit"
+                class="workflow-check {% if task.completed %}completed{% endif %}"
+                aria-label="Change task status"
+                title="Change task status"
+            >
+                {% if task.completed %}
+                    ✓
+                {% else %}
+                    ○
+                {% endif %}
+            </button>
+        </form>
+
+        <div>
+            <span
+                class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}"
+            >
+                {{ task.name }}
+            </span>
+
+            {% if task.completed %}
+                <div class="small text-muted">
+                    Completed
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
 
     <div>
         {% if task.completed %}
-            <span class="text-success fw-bold">✓</span>
+            <span class="badge bg-success">
+                Done
+            </span>
         {% else %}
-            <span class="text-muted">○</span>
+            <span class="badge bg-light text-dark border">
+                Pending
+            </span>
         {% endif %}
-
-        <span class="ms-2">{{ task.name }}</span>
     </div>
 
-    {% if task.completed %}
-        <span class="badge bg-success">Done</span>
-    {% else %}
-        <span class="badge bg-light text-dark">Pending</span>
-    {% endif %}
-
 </div>
+
 {% endfor %}

@@ -134,3 +134,36 @@ th {
     background: #e0e7ff;
     color: #3730a3;
 }
+
+.workflow-check {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    background: white;
+    color: #6b7280;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.workflow-check:hover {
+    border-color: #111827;
+    color: #111827;
+    transform: scale(1.05);
+}
+
+.workflow-check.completed {
+    background: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.workflow-task {
+    transition: background 0.2s ease;
+}
+
+.workflow-task:hover {
+    background: #f8f9fa;
+}
