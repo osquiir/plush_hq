@@ -216,14 +216,26 @@ def release_detail(release_id):
         "contains enough project information."
     )
 
+    activities = [
+        {
+            "id": activity.id,
+            "action": activity.action,
+            "entity_type": activity.entity_type,
+            "created_at": activity.created_at,
+        }
+        for activity in release_record.activities
+    ]
+
     return render_template(
         "release_detail.html",
         release=release,
         tasks=tasks,
         files=files,
         notes=notes,
+        activities=activities,
         ai_summary=ai_summary,
     )
+
 
 @releases_bp.route("/tasks/<int:task_id>/toggle", methods=["POST"])
 def toggle_task(task_id):

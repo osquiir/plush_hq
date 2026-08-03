@@ -167,3 +167,11 @@ th {
 .workflow-task:hover {
     background: #f8f9fa;
 }
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: #111827;
+}

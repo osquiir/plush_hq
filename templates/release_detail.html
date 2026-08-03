@@ -4,7 +4,10 @@
 
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <a href="/dashboard" class="text-decoration-none text-secondary">
+        <a
+            href="{{ url_for('dashboard.dashboard') }}"
+            class="text-decoration-none text-secondary"
+        >
             ← Back to Dashboard
         </a>
 
@@ -22,9 +25,13 @@
 
 <div class="card border-0 shadow-sm p-4 mb-4">
     <div class="row align-items-center">
+
         <div class="col-md-8">
             <p class="text-muted mb-1">Current Stage</p>
-            <h3 class="mb-3">{{ release.stage }}</h3>
+
+            <h3 class="mb-3">
+                {{ release.stage }}
+            </h3>
 
             <div class="progress" style="height: 14px;">
                 <div
@@ -33,22 +40,34 @@
                     style="width: {{ release.progress }}%;"
                     aria-valuenow="{{ release.progress }}"
                     aria-valuemin="0"
-                    aria-valuemax="100">
+                    aria-valuemax="100"
+                >
                 </div>
             </div>
         </div>
 
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <p class="text-muted mb-1">Overall Progress</p>
-            <h2 class="mb-0">{{ release.progress }}%</h2>
+            <p class="text-muted mb-1">
+                Overall Progress
+            </p>
+
+            <h2 class="mb-0">
+                {{ release.progress }}%
+            </h2>
         </div>
+
     </div>
 </div>
 
 <div class="card border-0 shadow-sm">
 
     <div class="card-header bg-white border-bottom">
-        <ul class="nav nav-tabs card-header-tabs" id="releaseTabs" role="tablist">
+
+        <ul
+            class="nav nav-tabs card-header-tabs flex-nowrap overflow-auto"
+            id="releaseTabs"
+            role="tablist"
+        >
 
             <li class="nav-item" role="presentation">
                 <button
@@ -57,7 +76,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#overview"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="overview"
+                    aria-selected="true"
+                >
                     Overview
                 </button>
             </li>
@@ -69,7 +91,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#workflow"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="workflow"
+                    aria-selected="false"
+                >
                     Workflow
                 </button>
             </li>
@@ -81,7 +106,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#files"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="files"
+                    aria-selected="false"
+                >
                     Files
                 </button>
             </li>
@@ -93,7 +121,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#metadata"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="metadata"
+                    aria-selected="false"
+                >
                     Metadata
                 </button>
             </li>
@@ -105,7 +136,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#marketing"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="marketing"
+                    aria-selected="false"
+                >
                     Marketing
                 </button>
             </li>
@@ -117,8 +151,26 @@
                     data-bs-toggle="tab"
                     data-bs-target="#notes"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="notes"
+                    aria-selected="false"
+                >
                     Notes
+                </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link"
+                    id="timeline-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#timeline"
+                    type="button"
+                    role="tab"
+                    aria-controls="timeline"
+                    aria-selected="false"
+                >
+                    Timeline
                 </button>
             </li>
 
@@ -129,7 +181,10 @@
                     data-bs-toggle="tab"
                     data-bs-target="#analytics"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="analytics"
+                    aria-selected="false"
+                >
                     Analytics
                 </button>
             </li>
@@ -141,22 +196,32 @@
                     data-bs-toggle="tab"
                     data-bs-target="#ai"
                     type="button"
-                    role="tab">
+                    role="tab"
+                    aria-controls="ai"
+                    aria-selected="false"
+                >
                     AI Insights
                 </button>
             </li>
 
         </ul>
+
     </div>
 
     <div class="card-body">
-        <div class="tab-content" id="releaseTabsContent">
+
+        <div
+            class="tab-content"
+            id="releaseTabsContent"
+        >
 
             <div
                 class="tab-pane fade show active"
                 id="overview"
                 role="tabpanel"
-                aria-labelledby="overview-tab">
+                aria-labelledby="overview-tab"
+                tabindex="0"
+            >
                 {% include "tabs/overview.html" %}
             </div>
 
@@ -164,7 +229,9 @@
                 class="tab-pane fade"
                 id="workflow"
                 role="tabpanel"
-                aria-labelledby="workflow-tab">
+                aria-labelledby="workflow-tab"
+                tabindex="0"
+            >
                 {% include "tabs/workflow.html" %}
             </div>
 
@@ -172,7 +239,9 @@
                 class="tab-pane fade"
                 id="files"
                 role="tabpanel"
-                aria-labelledby="files-tab">
+                aria-labelledby="files-tab"
+                tabindex="0"
+            >
                 {% include "tabs/files.html" %}
             </div>
 
@@ -180,7 +249,9 @@
                 class="tab-pane fade"
                 id="metadata"
                 role="tabpanel"
-                aria-labelledby="metadata-tab">
+                aria-labelledby="metadata-tab"
+                tabindex="0"
+            >
                 {% include "tabs/metadata.html" %}
             </div>
 
@@ -188,7 +259,9 @@
                 class="tab-pane fade"
                 id="marketing"
                 role="tabpanel"
-                aria-labelledby="marketing-tab">
+                aria-labelledby="marketing-tab"
+                tabindex="0"
+            >
                 {% include "tabs/marketing.html" %}
             </div>
 
@@ -196,15 +269,29 @@
                 class="tab-pane fade"
                 id="notes"
                 role="tabpanel"
-                aria-labelledby="notes-tab">
+                aria-labelledby="notes-tab"
+                tabindex="0"
+            >
                 {% include "tabs/notes.html" %}
+            </div>
+
+            <div
+                class="tab-pane fade"
+                id="timeline"
+                role="tabpanel"
+                aria-labelledby="timeline-tab"
+                tabindex="0"
+            >
+                {% include "tabs/timeline.html" %}
             </div>
 
             <div
                 class="tab-pane fade"
                 id="analytics"
                 role="tabpanel"
-                aria-labelledby="analytics-tab">
+                aria-labelledby="analytics-tab"
+                tabindex="0"
+            >
                 {% include "tabs/analytics.html" %}
             </div>
 
@@ -212,11 +299,14 @@
                 class="tab-pane fade"
                 id="ai"
                 role="tabpanel"
-                aria-labelledby="ai-tab">
+                aria-labelledby="ai-tab"
+                tabindex="0"
+            >
                 {% include "tabs/ai.html" %}
             </div>
 
         </div>
+
     </div>
 
 </div>
