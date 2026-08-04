@@ -1,28 +1,145 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="py-3">
 
-    <div>
-        <h4 class="mb-1">Notes</h4>
-        <p class="text-muted mb-0">
-            Internal notes and artist-visible updates.
-        </p>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h4 class="mb-1">Release Notes</h4>
+
+            <p class="text-muted mb-0">
+                Add internal notes or updates that can be shared with the artist.
+            </p>
+        </div>
     </div>
 
-    <button class="btn btn-dark">
-        Add Note
-    </button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="card border-0 bg-light mb-4">
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'releases.add_note',
+                    release_id=release.id
+                ) }}"
+            >
+
+                <div class="mb-3">
+                    <label
+                        for="note-content"
+                        class="form-label fw-semibold"
+                    >
+                        New Note
+                    </label>
+
+                    <textarea
+                        id="note-content"
+                        name="content"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Write a note about this release..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="row align-items-end">
+
+                    <div class="col-md-6">
+                        <label
+                            for="note-visibility"
+                            class="form-label fw-semibold"
+                        >
+                            Visibility
+                        </label>
+
+                        <select
+                            id="note-visibility"
+                            name="visibility"
+                            class="form-select"
+                        >
+                            <option value="internal">
+                                Internal — team only
+                            </option>
+
+                            <option value="artist_visible">
+                                Artist visible
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <button
+                            type="submit"
+                            class="btn btn-dark"
+                        >
+                            Add Note
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div>
+        <h5 class="mb-3">Previous Notes</h5>
+
+        {% if notes %}
+
+            {% for note in notes %}
+
+                <div class="note-item border rounded p-3 mb-3">
+
+                    <div class="d-flex justify-content-between gap-3">
+
+                        <p class="mb-2">
+                            {{ note.content }}
+                        </p>
+
+                        {% if note.visibility == "Artist Visible" %}
+                            <span class="badge bg-primary align-self-start">
+                                Artist Visible
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary align-self-start">
+                                Internal
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    {% if note.created_at %}
+                        <small class="text-muted">
+                            {{ note.created_at.strftime(
+                                "%b %d, %Y at %I:%M %p"
+                            ) }}
+                        </small>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="text-center border rounded py-5">
+
+                <h5>No notes yet</h5>
+
+                <p class="text-muted mb-0">
+                    Notes added by the team will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+    </div>
 
 </div>
-
-{% for note in notes %}
-<div class="border-bottom py-3">
-
-    <p class="mb-1">
-        {{ note.content }}
-    </p>
-
-    <small class="text-muted">
-        {{ note.visibility }}
-    </small>
-
-</div>
-{% endfor %}

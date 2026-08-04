@@ -14,6 +14,8 @@ from models.artist import Artist
 from models.release import Release
 from models.task import Task
 from models.activity import Activity
+from models.note import Note
+
 
 releases_bp = Blueprint("releases", __name__)
 
@@ -202,13 +204,19 @@ def release_detail(release_id):
 
     notes = [
         {
+            "id": note.id,
             "content": note.content,
             "visibility": note.visibility.replace(
                 "_",
                 " ",
             ).title(),
+            "created_at": note.created_at,
         }
-        for note in release_record.notes
+        for note in sorted(
+            release_record.notes,
+            key=lambda item: item.created_at,
+            reverse=True,
+        )
     ]
 
     ai_summary = (
@@ -295,4 +303,73 @@ def toggle_task(task_id):
             release_id=release_record.id,
         )
         + "#workflow"
+    )
+
+@releases_bp.route(
+    "/releases/<int:release_id>/notes",
+    methods=["POST"],
+)
+def add_note(release_id):
+    release_record = Release.query.get_or_404(release_id)
+
+    content = request.form.get("content", "").strip()
+    visibility = request.form.get(
+        "visibility",
+        "internal",
+    ).strip()
+
+    allowed_visibilities = {
+        "internal",
+        "artist_visible",
+    }
+
+    if not content:
+        flash(
+            "The note cannot be empty.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#notes"
+        )
+
+    if visibility not in allowed_visibilities:
+        visibility = "internal"
+
+    note = Note(
+        release_id=release_record.id,
+        user_id=None,
+        content=content,
+        visibility=visibility,
+    )
+
+    db.session.add(note)
+    db.session.flush()
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=None,
+        action="Added a release note",
+        entity_type="note",
+        entity_id=note.id,
+    )
+
+    db.session.add(activity)
+    db.session.commit()
+
+    flash(
+        "Note added successfully.",
+        "success",
+    )
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#notes"
     )
