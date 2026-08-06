@@ -1,82 +1,118 @@
+from datetime import date, timedelta
+
 from flask import Blueprint, render_template
+
+from models.activity import Activity
+from models.release import Release
+from models.task import Task
+
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
 @dashboard_bp.route("/dashboard")
 def dashboard():
-    releases = [
-        {
-            "id": 1,
-            "artist": "Mia Rose",
-            "title": "After Hours",
-            "stage": "Artwork Approval",
-            "release_date": "Aug 02",
-            "progress": 60,
-            "status": "Needs Attention",
-            "status_class": "warning",
-        },
-        {
-            "id": 2,
-            "artist": "Kairo",
-            "title": "Late Night Drive",
-            "stage": "Marketing Rollout",
-            "release_date": "Jul 26",
-            "progress": 80,
-            "status": "On Track",
-            "status_class": "good",
-        },
-        {
-            "id": 3,
-            "artist": "Luna Vega",
-            "title": "Blue Moon",
-            "stage": "Metadata",
-            "release_date": "Aug 15",
-            "progress": 45,
-            "status": "In Progress",
-            "status_class": "neutral",
-        },
+    today = date.today()
+    next_week = today + timedelta(days=7)
+
+    releases = (
+        Release.query
+        .order_by(Release.release_date.asc())
+        .all()
+    )
+
+    active_releases = [
+        release
+        for release in releases
+        if release.status != "completed"
     ]
+
+    on_track_count = sum(
+        1
+        for release in active_releases
+        if release.progress >= 50
+        and release.current_stage != "Completed"
+    )
+
+    needs_attention_count = sum(
+        1
+        for release in active_releases
+        if release.progress < 50
+    )
+
+    releasing_soon_count = sum(
+        1
+        for release in active_releases
+        if release.release_date
+        and today <= release.release_date <= next_week
+    )
+
+    release_rows = []
+
+    for release in active_releases:
+        release_rows.append(
+            {
+                "id": release.id,
+                "artist": release.artist.name,
+                "title": release.title,
+                "stage": release.current_stage or "Not selected",
+                "release_date": (
+                    release.release_date.strftime("%b %d, %Y")
+                    if release.release_date
+                    else "Not scheduled"
+                ),
+                "progress": release.progress,
+                "status": release.status.replace("_", " ").title(),
+            }
+        )
+
+    pending_tasks = (
+        Task.query
+        .filter(Task.status != "done")
+        .order_by(Task.due_date.asc())
+        .limit(5)
+        .all()
+    )
 
     priorities = [
         {
-            "level": "High",
-            "artist": "Mia Rose",
-            "message": "Artwork approval is overdue.",
-            "class_name": "danger",
-        },
-        {
-            "level": "Medium",
-            "artist": "Luna Vega",
-            "message": "Song metadata is incomplete.",
-            "class_name": "warning",
-        },
-        {
-            "level": "Ready",
-            "artist": "Kairo",
-            "message": "Release is ready for the next stage.",
-            "class_name": "success",
-        },
+            "release_id": task.release_id,
+            "artist": task.release.artist.name,
+            "release": task.release.title,
+            "message": task.task_name,
+            "level": (
+                "High"
+                if task.due_date and task.due_date < today
+                else "Pending"
+            ),
+        }
+        for task in pending_tasks
     ]
+
+    recent_activities = (
+        Activity.query
+        .order_by(Activity.created_at.desc())
+        .limit(8)
+        .all()
+    )
 
     activities = [
         {
-            "time": "11:42 AM",
-            "message": "Artwork uploaded for After Hours.",
-        },
-        {
-            "time": "10:20 AM",
-            "message": "Metadata updated for Blue Moon.",
-        },
-        {
-            "time": "Yesterday",
-            "message": "Marketing note added to Late Night Drive.",
-        },
+            "release_id": activity.release_id,
+            "release_title": activity.release.title,
+            "action": activity.action,
+            "created_at": activity.created_at,
+        }
+        for activity in recent_activities
     ]
 
     return render_template(
         "dashboard.html",
-        releases=releases,
+        active_count=len(active_releases),
+        on_track_count=on_track_count,
+        needs_attention_count=needs_attention_count,
+        releasing_soon_count=releasing_soon_count,
+        releases=release_rows,
         priorities=priorities,
         activities=activities,
     )

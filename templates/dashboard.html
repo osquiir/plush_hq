@@ -5,6 +5,7 @@
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
         <h1 class="mb-1">Good morning 👋</h1>
+
         <p class="text-muted mb-0">
             Here is what needs your attention today.
         </p>
@@ -23,7 +24,7 @@
     <div class="col-md-3">
         <div class="dashboard-stat-card">
             <p>Active Releases</p>
-            <h2>12</h2>
+            <h2>{{ active_count }}</h2>
             <small>Currently in progress</small>
         </div>
     </div>
@@ -31,15 +32,15 @@
     <div class="col-md-3">
         <div class="dashboard-stat-card">
             <p>On Track</p>
-            <h2>9</h2>
-            <small>No immediate action needed</small>
+            <h2>{{ on_track_count }}</h2>
+            <small>Progressing normally</small>
         </div>
     </div>
 
     <div class="col-md-3">
         <div class="dashboard-stat-card">
             <p>Need Attention</p>
-            <h2>3</h2>
+            <h2>{{ needs_attention_count }}</h2>
             <small>Missing or delayed items</small>
         </div>
     </div>
@@ -47,7 +48,7 @@
     <div class="col-md-3">
         <div class="dashboard-stat-card">
             <p>Releasing Soon</p>
-            <h2>2</h2>
+            <h2>{{ releasing_soon_count }}</h2>
             <small>Within the next 7 days</small>
         </div>
     </div>
@@ -62,32 +63,85 @@
 
                 <div class="mb-4">
                     <h3 class="mb-1">Today's Priorities</h3>
+
                     <p class="text-muted mb-0">
-                        Items that may affect upcoming releases.
+                        Pending tasks across active releases.
                     </p>
                 </div>
 
-                {% for priority in priorities %}
+                {% if priorities %}
 
-                <div class="priority-item">
-                    <div class="priority-indicator bg-{{ priority.class_name }}"></div>
+                    {% for priority in priorities %}
 
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <strong>{{ priority.artist }}</strong>
+                        <div class="priority-item">
 
-                            <span class="badge text-bg-{{ priority.class_name }}">
-                                {{ priority.level }}
-                            </span>
+                            <div
+                                class="priority-indicator
+                                {% if priority.level == 'High' %}
+                                    bg-danger
+                                {% else %}
+                                    bg-warning
+                                {% endif %}"
+                            ></div>
+
+                            <div class="flex-grow-1">
+
+                                <div class="d-flex justify-content-between gap-3">
+
+                                    <div>
+                                        <strong>
+                                            {{ priority.artist }}
+                                        </strong>
+
+                                        <div class="text-muted small">
+                                            {{ priority.release }}
+                                        </div>
+                                    </div>
+
+                                    <span
+                                        class="badge
+                                        {% if priority.level == 'High' %}
+                                            text-bg-danger
+                                        {% else %}
+                                            text-bg-warning
+                                        {% endif %}"
+                                    >
+                                        {{ priority.level }}
+                                    </span>
+
+                                </div>
+
+                                <p class="text-muted mb-2 mt-2">
+                                    {{ priority.message }}
+                                </p>
+
+                                <a
+                                    href="{{ url_for(
+                                        'releases.release_detail',
+                                        release_id=priority.release_id
+                                    ) }}#workflow"
+                                    class="small text-decoration-none"
+                                >
+                                    Open Workflow →
+                                </a>
+
+                            </div>
+
                         </div>
 
-                        <p class="text-muted mb-0 mt-1">
-                            {{ priority.message }}
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-5">
+                        <h5>No pending priorities</h5>
+
+                        <p class="text-muted mb-0">
+                            All current workflow items are complete.
                         </p>
                     </div>
-                </div>
 
-                {% endfor %}
+                {% endif %}
 
             </div>
         </div>
@@ -97,129 +151,197 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body p-4">
 
-                <h3 class="mb-1">AI Insights</h3>
-                <p class="text-muted">
-                    Automatic overview of current release activity.
+                <h3 class="mb-1">Recent Activity</h3>
+
+                <p class="text-muted mb-3">
+                    Latest updates made across releases.
                 </p>
 
-                <div class="ai-insight-box mb-3">
-                    <small>Today's Focus</small>
-                    <p>Finalize the artwork for After Hours.</p>
-                </div>
+                {% if activities %}
 
-                <div class="ai-insight-box mb-3">
-                    <small>Potential Risk</small>
-                    <p>Blue Moon is missing required metadata.</p>
-                </div>
+                    {% for activity in activities %}
 
-                <div class="ai-insight-box">
-                    <small>Recommended Action</small>
-                    <p>Confirm artwork approval before Friday.</p>
-                </div>
+                        <div class="activity-item">
 
-            </div>
-        </div>
-    </div>
+                            <small>
+                                {{ activity.created_at.strftime(
+                                    "%b %d, %Y at %I:%M %p"
+                                ) }}
+                            </small>
 
-</div>
+                            <p class="mb-1">
+                                {{ activity.action }}
+                            </p>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h3 class="mb-1">Release Pipeline</h3>
-                <p class="text-muted mb-0">
-                    Current progress across active releases.
-                </p>
-            </div>
-
-            <a href="/releases" class="btn btn-outline-dark btn-sm">
-                View All
-            </a>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table align-middle">
-
-                <thead>
-                    <tr>
-                        <th>Artist</th>
-                        <th>Release</th>
-                        <th>Stage</th>
-                        <th>Release Date</th>
-                        <th style="min-width: 180px;">Progress</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for release in releases %}
-
-                    <tr>
-                        <td>{{ release.artist }}</td>
-                        <td>
-                            <strong>{{ release.title }}</strong>
-                        </td>
-                        <td>{{ release.stage }}</td>
-                        <td>{{ release.release_date }}</td>
-
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height: 8px;">
-                                    <div
-                                        class="progress-bar bg-dark"
-                                        style="width: {{ release.progress }}%;">
-                                    </div>
-                                </div>
-
-                                <small>{{ release.progress }}%</small>
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="badge {{ release.status_class }}">
-                                {{ release.status }}
-                            </span>
-                        </td>
-
-                        <td>
                             <a
-                                href="/releases/{{ release.id }}"
-                                class="btn btn-sm btn-outline-secondary">
-                                View
+                                href="{{ url_for(
+                                    'releases.release_detail',
+                                    release_id=activity.release_id
+                                ) }}#timeline"
+                                class="small text-decoration-none"
+                            >
+                                {{ activity.release_title }}
                             </a>
-                        </td>
-                    </tr>
+
+                        </div>
 
                     {% endfor %}
 
-                </tbody>
+                {% else %}
 
-            </table>
+                    <div class="text-center py-5">
+                        <h5>No activity yet</h5>
+
+                        <p class="text-muted mb-0">
+                            Workflow, notes, metadata, and uploads will appear here.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
         </div>
-
     </div>
+
 </div>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body p-4">
 
-        <h3 class="mb-1">Recent Activity</h3>
-        <p class="text-muted mb-3">
-            Latest changes made by the team.
-        </p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-        {% for activity in activities %}
+            <div>
+                <h3 class="mb-1">Release Pipeline</h3>
 
-        <div class="activity-item">
-            <small>{{ activity.time }}</small>
-            <p>{{ activity.message }}</p>
+                <p class="text-muted mb-0">
+                    Current progress across all active releases.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('releases.releases') }}"
+                class="btn btn-outline-dark btn-sm"
+            >
+                View All
+            </a>
+
         </div>
 
-        {% endfor %}
+        {% if releases %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Artist</th>
+                            <th>Release</th>
+                            <th>Current Stage</th>
+                            <th>Release Date</th>
+                            <th style="min-width: 180px;">Progress</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for release in releases %}
+
+                            <tr>
+
+                                <td>
+                                    {{ release.artist }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ release.title }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ release.stage }}
+                                </td>
+
+                                <td>
+                                    {{ release.release_date }}
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <div
+                                            class="progress flex-grow-1"
+                                            style="height: 8px;"
+                                        >
+                                            <div
+                                                class="progress-bar bg-dark"
+                                                style="width: {{ release.progress }}%;"
+                                                role="progressbar"
+                                                aria-valuenow="{{ release.progress }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100"
+                                            >
+                                            </div>
+                                        </div>
+
+                                        <small>
+                                            {{ release.progress }}%
+                                        </small>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ release.status }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{{ url_for(
+                                            'releases.release_detail',
+                                            release_id=release.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        View
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <h5>No releases yet</h5>
+
+                <p class="text-muted">
+                    Create your first release to begin tracking progress.
+                </p>
+
+                <a
+                    href="{{ url_for('releases.create_release') }}"
+                    class="btn btn-dark"
+                >
+                    Create First Release
+                </a>
+
+            </div>
+
+        {% endif %}
 
     </div>
 </div>
