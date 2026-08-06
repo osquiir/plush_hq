@@ -1,68 +1,191 @@
-<h4 class="mb-4">Song Metadata</h4>
+<div class="py-3">
 
-<div class="row g-3">
+    <div class="mb-4">
+        <h4 class="mb-1">
+            Song Database
+        </h4>
 
-    <div class="col-md-6">
-        <label class="form-label">Song Title</label>
-        <input
-            type="text"
-            class="form-control"
-            value="{{ release.title }}"
-            disabled>
+        <p class="text-muted">
+            Store all information related to the song.
+        </p>
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label">Artist</label>
-        <input
-            type="text"
-            class="form-control"
-            value="{{ release.artist }}"
-            disabled>
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
 
-    <div class="col-md-6">
-        <label class="form-label">ISRC</label>
-        <input
-            type="text"
-            class="form-control"
-            placeholder="Not added yet"
-            disabled>
-    </div>
+    <form
+        method="POST"
+        action="{{ url_for(
+            'releases.save_metadata',
+            release_id=release.id
+        ) }}"
+    >
 
-    <div class="col-md-6">
-        <label class="form-label">UPC</label>
-        <input
-            type="text"
-            class="form-control"
-            placeholder="Not added yet"
-            disabled>
-    </div>
+        <div class="row g-3">
 
-    <div class="col-md-6">
-        <label class="form-label">Writers</label>
-        <input
-            type="text"
-            class="form-control"
-            placeholder="Not added yet"
-            disabled>
-    </div>
+            <div class="col-md-6">
 
-    <div class="col-md-6">
-        <label class="form-label">Producers</label>
-        <input
-            type="text"
-            class="form-control"
-            placeholder="Not added yet"
-            disabled>
-    </div>
+                <label class="form-label">
+                    Song Title
+                </label>
 
-    <div class="col-12">
-        <label class="form-label">Lyrics</label>
-        <textarea
-            class="form-control"
-            rows="6"
-            placeholder="Lyrics have not been added yet"
-            disabled></textarea>
-    </div>
+                <input
+                    type="text"
+                    name="song_title"
+                    class="form-control"
+                    value="{{ metadata.song_title }}"
+                    required
+                >
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    ISRC
+                </label>
+
+                <input
+                    type="text"
+                    name="isrc"
+                    class="form-control"
+                    value="{{ metadata.isrc }}"
+                >
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    UPC
+                </label>
+
+                <input
+                    type="text"
+                    name="upc"
+                    class="form-control"
+                    value="{{ metadata.upc }}"
+                >
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Language
+                </label>
+
+                <input
+                    type="text"
+                    name="language"
+                    class="form-control"
+                    value="{{ metadata.language }}"
+                >
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Writers
+                </label>
+
+                <input
+                    type="text"
+                    name="writers"
+                    class="form-control"
+                    value="{{ metadata.writers }}"
+                >
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Producers
+                </label>
+
+                <input
+                    type="text"
+                    name="producers"
+                    class="form-control"
+                    value="{{ metadata.producers }}"
+                >
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+                    Credits
+                </label>
+
+                <textarea
+                    name="credits"
+                    class="form-control"
+                    rows="3"
+                >{{ metadata.credits }}</textarea>
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+                    Lyrics
+                </label>
+
+                <textarea
+                    name="lyrics"
+                    class="form-control"
+                    rows="8"
+                >{{ metadata.lyrics }}</textarea>
+
+            </div>
+
+            <div class="col-12">
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="explicit"
+                        id="explicit"
+
+                        {% if metadata.explicit %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <label
+                        class="form-check-label"
+                        for="explicit"
+                    >
+                        Explicit Content
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="text-end mt-4">
+
+            <button
+                class="btn btn-dark"
+                type="submit"
+            >
+                Save Metadata
+            </button>
+
+        </div>
+
+    </form>
 
 </div>

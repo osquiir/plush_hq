@@ -1,0 +1,239 @@
+<div class="py-3">
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h4 class="mb-1">Release Media</h4>
+
+            <p class="text-muted mb-0">
+                Store audio, artwork, videos, and other creative assets
+                related to this release.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-dark"
+            data-bs-toggle="modal"
+            data-bs-target="#uploadMediaModal"
+        >
+            Upload Media
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if files %}
+
+        <div class="row g-3">
+
+            {% for file in files %}
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="border rounded p-3 h-100">
+
+                        <div class="d-flex justify-content-between gap-3">
+
+
+                        <div>
+                            <strong>
+                                {{ file.name }}
+                            </strong>
+
+                            <div class="text-muted small mt-1">
+                                {{ file.category }}
+                            </div>
+
+                                <div class="mt-3">
+                                    <a
+                                        href="{{ file.url }}"
+                                        class="btn btn-sm btn-outline-dark"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        View File
+                                    </a>
+                                </div>
+                            </div>
+
+                            <span class="badge bg-light text-dark border">
+                                Media
+                            </span>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="text-center border rounded py-5">
+
+            <h5>No media uploaded yet</h5>
+
+            <p class="text-muted mb-0">
+                Audio, artwork, and videos added to this release
+                will appear here.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div
+    class="modal fade"
+    id="uploadMediaModal"
+    tabindex="-1"
+    aria-labelledby="uploadMediaModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="uploadMediaModalLabel"
+                >
+                    Upload Media
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form
+                    id="media-upload-form"
+                    method="POST"
+                    action="{{ url_for(
+                        'releases.upload_media',
+                        release_id=release.id
+                    ) }}"
+                    enctype="multipart/form-data"
+                >
+
+                    <div class="mb-3">
+
+                        <label
+                            for="media-file"
+                            class="form-label"
+                        >
+                            File
+                        </label>
+
+                        <input
+                            type="file"
+                            id="media-file"
+                            name="media_file"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label
+                            for="media-category"
+                            class="form-label"
+                        >
+                            Category
+                        </label>
+
+                        <select
+                            id="media-category"
+                            name="category"
+                            class="form-select"
+                            required
+                        >
+                            <option value="audio">
+                                Audio
+                            </option>
+
+                            <option value="artwork">
+                                Artwork
+                            </option>
+
+                            <option value="video">
+                                Video
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label
+                            for="media-visibility"
+                            class="form-label"
+                        >
+                            Visibility
+                        </label>
+
+                        <select
+                            id="media-visibility"
+                            name="visibility"
+                            class="form-select"
+                        >
+                            <option value="internal">
+                                Internal — team only
+                            </option>
+
+                            <option value="artist_visible">
+                                Artist visible
+                            </option>
+                        </select>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    form="media-upload-form"
+                    class="btn btn-dark"
+                >
+                    Upload
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>

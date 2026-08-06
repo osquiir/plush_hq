@@ -102,15 +102,15 @@
             <li class="nav-item" role="presentation">
                 <button
                     class="nav-link"
-                    id="files-tab"
+                    id="media-tab"
                     data-bs-toggle="tab"
-                    data-bs-target="#files"
+                    data-bs-target="#media"
                     type="button"
                     role="tab"
-                    aria-controls="files"
+                    aria-controls="media"
                     aria-selected="false"
                 >
-                    Files
+                    Media
                 </button>
             </li>
 
@@ -237,12 +237,12 @@
 
             <div
                 class="tab-pane fade"
-                id="files"
+                id="media"
                 role="tabpanel"
-                aria-labelledby="files-tab"
+                aria-labelledby="media-tab"
                 tabindex="0"
             >
-                {% include "tabs/files.html" %}
+                {% include "tabs/media.html" %}
             </div>
 
             <div
