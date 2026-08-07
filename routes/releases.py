@@ -1,6 +1,11 @@
 import os
 from datetime import date, datetime
 from uuid import uuid4
+from flask_login import (
+    current_user,
+    login_required,
+)
+
 
 from flask import (
     Blueprint,
@@ -21,6 +26,7 @@ from models.metadata import SongMetadata
 from models.note import Note
 from models.release import Release
 from models.task import Task
+from models.user import User
 
 releases_bp = Blueprint("releases", __name__)
 
@@ -244,15 +250,28 @@ def release_detail(release_id):
         "contains enough project information."
     )
 
-    activities = [
-        {
-            "id": activity.id,
-            "action": activity.action,
-            "entity_type": activity.entity_type,
-            "created_at": activity.created_at,
-        }
-        for activity in release_record.activities
-    ]
+    activities = []
+
+    for activity in release_record.activities:
+
+        user_name = "System"
+
+        if activity.user_id:
+
+            user = User.query.get(activity.user_id)
+
+            if user:
+                user_name = user.name
+
+        activities.append(
+            {
+                "id": activity.id,
+                "action": activity.action,
+                "entity_type": activity.entity_type,
+                "created_at": activity.created_at,
+                "user_name": user_name,
+            }
+        )
     metadata_record = release_record.song_metadata
 
     metadata = {
@@ -356,7 +375,7 @@ def toggle_task(task_id):
 
     activity = Activity(
         release_id=release_record.id,
-        user_id=None,
+        user_id=current_user.id,
         action=action,
         entity_type="task",
         entity_id=task.id,
@@ -412,7 +431,7 @@ def add_note(release_id):
 
     note = Note(
         release_id=release_record.id,
-        user_id=None,
+        user_id=current_user.id,
         content=content,
         visibility=visibility,
     )
@@ -422,7 +441,7 @@ def add_note(release_id):
 
     activity = Activity(
         release_id=release_record.id,
-        user_id=None,
+        user_id=current_user.id,
         action="Added a release note",
         entity_type="note",
         entity_id=note.id,
@@ -501,7 +520,7 @@ def save_metadata(release_id):
 
     activity = Activity(
         release_id=release_record.id,
-        user_id=None,
+        user_id=current_user.id,
         action=action,
         entity_type="song_metadata",
         entity_id=metadata.id,
@@ -601,7 +620,7 @@ def upload_media(release_id):
 
     media_record = ProjectFile(
         release_id=release_record.id,
-        uploaded_by=None,
+        uploaded_by=current_user.id,
         file_name=original_filename,
         file_type=uploaded_file.mimetype,
         file_url=relative_url,
@@ -614,8 +633,11 @@ def upload_media(release_id):
 
     activity = Activity(
         release_id=release_record.id,
-        user_id=None,
-        action=f'Uploaded media "{original_filename}"',
+        user_id=current_user.id,
+        action=(
+            f'Uploaded media '
+            f'"{original_filename}"'
+        ),
         entity_type="project_file",
         entity_id=media_record.id,
     )
@@ -632,3 +654,4 @@ def upload_media(release_id):
         )
         + "#media"
     )
+

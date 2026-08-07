@@ -6,7 +6,10 @@ from . import db
 class Activity(db.Model):
     __tablename__ = "activities"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
 
     release_id = db.Column(
         db.Integer,
@@ -22,7 +25,10 @@ class Activity(db.Model):
         index=True,
     )
 
-    action = db.Column(db.String(255), nullable=False)
+    action = db.Column(
+        db.String(255),
+        nullable=False,
+    )
 
     entity_type = db.Column(
         db.String(50),
@@ -39,4 +45,10 @@ class Activity(db.Model):
         nullable=False,
         default=datetime.utcnow,
         index=True,
+    )
+
+    # SOLO esta relación
+    user = db.relationship(
+        "User",
+        backref="activities",
     )

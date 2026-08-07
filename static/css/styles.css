@@ -337,3 +337,97 @@ th {
         gap: 8px;
     }
 }
+.login-page {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111111;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 460px;
+    padding: 24px;
+}
+
+.login-card {
+    padding: 42px;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.login-logo {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.login-card .form-control {
+    min-height: 48px;
+    border-radius: 10px;
+}
+
+.login-card .btn {
+    min-height: 48px;
+    border-radius: 10px;
+}
+/* ======================================
+   Timeline
+====================================== */
+
+.timeline {
+    position: relative;
+    margin-top: 20px;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 18px;
+    position: relative;
+    padding-bottom: 28px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: #111111;
+    flex-shrink: 0;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 22px;
+    width: 2px;
+    height: calc(100% - 8px);
+    background: #e5e7eb;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-content {
+    width: 100%;
+    padding: 18px;
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    background: #ffffff;
+    transition: all .2s ease;
+}
+
+.timeline-content:hover {
+    border-color: #111111;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.06);
+}
