@@ -2,13 +2,20 @@
 
 {% block content %}
 
+<!-- HEADER -->
+
 <div class="d-flex justify-content-between align-items-start mb-4">
+
     <div>
-        <h1 class="mb-1">Good morning 👋</h1>
+
+        <h1 class="mb-1">
+            Good morning
+        </h1>
 
         <p class="text-muted mb-0">
             Here is what needs your attention today.
         </p>
+
     </div>
 
     <a
@@ -17,57 +24,169 @@
     >
         + New Release
     </a>
+
 </div>
+
+
+<!-- SEARCH -->
+
+<div class="dashboard-search mb-4">
+
+    <div class="position-relative">
+
+        <span class="dashboard-search-icon">
+            ⌕
+        </span>
+
+        <input
+            type="text"
+            id="releaseSearch"
+            class="form-control form-control-lg"
+            placeholder="Search releases or artists..."
+            autocomplete="off"
+        >
+
+    </div>
+
+    <div
+        id="searchResults"
+        class="list-group mt-2 d-none"
+    >
+    </div>
+
+</div>
+
+
+<!-- DASHBOARD STATS / FILTERS -->
 
 <div class="row g-3 mb-4">
 
     <div class="col-md-3">
-        <div class="dashboard-stat-card">
-            <p>Active Releases</p>
-            <h2>{{ active_count }}</h2>
-            <small>Currently in progress</small>
-        </div>
+
+        <button
+            type="button"
+            class="dashboard-stat-card dashboard-filter-card w-100 text-start"
+            data-filter="all"
+        >
+
+            <p>
+                Active Releases
+            </p>
+
+            <h2>
+                {{ active_count }}
+            </h2>
+
+            <small>
+                Currently in progress
+            </small>
+
+        </button>
+
     </div>
 
-    <div class="col-md-3">
-        <div class="dashboard-stat-card">
-            <p>On Track</p>
-            <h2>{{ on_track_count }}</h2>
-            <small>Progressing normally</small>
-        </div>
-    </div>
 
     <div class="col-md-3">
-        <div class="dashboard-stat-card">
-            <p>Need Attention</p>
-            <h2>{{ needs_attention_count }}</h2>
-            <small>Missing or delayed items</small>
-        </div>
+
+        <button
+            type="button"
+            class="dashboard-stat-card dashboard-filter-card w-100 text-start"
+            data-filter="healthy"
+        >
+
+            <p>
+                On Track
+            </p>
+
+            <h2>
+                {{ on_track_count }}
+            </h2>
+
+            <small>
+                Progressing normally
+            </small>
+
+        </button>
+
     </div>
 
+
     <div class="col-md-3">
-        <div class="dashboard-stat-card">
-            <p>Releasing Soon</p>
-            <h2>{{ releasing_soon_count }}</h2>
-            <small>Within the next 7 days</small>
-        </div>
+
+        <button
+            type="button"
+            class="dashboard-stat-card dashboard-filter-card w-100 text-start"
+            data-filter="attention"
+        >
+
+            <p>
+                Need Attention
+            </p>
+
+            <h2>
+                {{ needs_attention_count }}
+            </h2>
+
+            <small>
+                Missing or delayed items
+            </small>
+
+        </button>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <button
+            type="button"
+            class="dashboard-stat-card dashboard-filter-card w-100 text-start"
+            data-filter="soon"
+        >
+
+            <p>
+                Releasing Soon
+            </p>
+
+            <h2>
+                {{ releasing_soon_count }}
+            </h2>
+
+            <small>
+                Within the next 7 days
+            </small>
+
+        </button>
+
     </div>
 
 </div>
 
+
+<!-- ROW 1: PRIORITIES + ACTIVITY -->
+
 <div class="row g-4 mb-4">
 
+    <!-- PRIORITIES -->
+
     <div class="col-lg-7">
+
         <div class="card border-0 shadow-sm h-100">
+
             <div class="card-body p-4">
 
                 <div class="mb-4">
-                    <h3 class="mb-1">Today's Priorities</h3>
+
+                    <h3 class="mb-1">
+                        Today's Priorities
+                    </h3>
 
                     <p class="text-muted mb-0">
                         Pending tasks across active releases.
                     </p>
+
                 </div>
+
 
                 {% if priorities %}
 
@@ -82,13 +201,16 @@
                                 {% else %}
                                     bg-warning
                                 {% endif %}"
-                            ></div>
+                            >
+                            </div>
+
 
                             <div class="flex-grow-1">
 
                                 <div class="d-flex justify-content-between gap-3">
 
                                     <div>
+
                                         <strong>
                                             {{ priority.artist }}
                                         </strong>
@@ -96,7 +218,9 @@
                                         <div class="text-muted small">
                                             {{ priority.release }}
                                         </div>
+
                                     </div>
+
 
                                     <span
                                         class="badge
@@ -111,9 +235,11 @@
 
                                 </div>
 
+
                                 <p class="text-muted mb-2 mt-2">
                                     {{ priority.message }}
                                 </p>
+
 
                                 <a
                                     href="{{ url_for(
@@ -134,28 +260,42 @@
                 {% else %}
 
                     <div class="text-center py-5">
-                        <h5>No pending priorities</h5>
+
+                        <h5>
+                            No pending priorities
+                        </h5>
 
                         <p class="text-muted mb-0">
                             All current workflow items are complete.
                         </p>
+
                     </div>
 
                 {% endif %}
 
             </div>
+
         </div>
+
     </div>
 
+
+    <!-- RECENT ACTIVITY -->
+
     <div class="col-lg-5">
+
         <div class="card border-0 shadow-sm h-100">
+
             <div class="card-body p-4">
 
-                <h3 class="mb-1">Recent Activity</h3>
+                <h3 class="mb-1">
+                    Recent Activity
+                </h3>
 
                 <p class="text-muted mb-3">
                     Latest updates made across releases.
                 </p>
+
 
                 {% if activities %}
 
@@ -190,33 +330,255 @@
                 {% else %}
 
                     <div class="text-center py-5">
-                        <h5>No activity yet</h5>
+
+                        <h5>
+                            No activity yet
+                        </h5>
 
                         <p class="text-muted mb-0">
-                            Workflow, notes, metadata, and uploads will appear here.
+                            Workflow, notes, metadata, and uploads
+                            will appear here.
                         </p>
+
                     </div>
 
                 {% endif %}
 
             </div>
+
         </div>
+
     </div>
 
 </div>
 
-<div class="card border-0 shadow-sm">
+
+<!-- ROW 2: RECENTLY UPDATED + UPCOMING -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- RECENTLY UPDATED -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="mb-3">
+
+                    <h3 class="mb-1">
+                        Recently Updated
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Releases with the most recent changes.
+                    </p>
+
+                </div>
+
+
+                {% if recent_releases %}
+
+                    {% for release in recent_releases %}
+
+                        <div
+                            class="d-flex justify-content-between align-items-center border-bottom py-3"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    {{ release.title }}
+                                </strong>
+
+                                <div class="text-muted small">
+                                    {{ release.artist }}
+                                </div>
+
+                                <div class="text-muted small mt-1">
+                                    {{ release.stage }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="text-end">
+
+                                <div class="mb-2">
+
+                                    <strong>
+                                        {{ release.progress }}%
+                                    </strong>
+
+                                </div>
+
+                                <a
+                                    href="{{ url_for(
+                                        'releases.release_detail',
+                                        release_id=release.id
+                                    ) }}"
+                                    class="btn btn-sm btn-outline-dark"
+                                >
+                                    Open
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-5">
+
+                        <h5>
+                            No recent updates
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Updated releases will appear here.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- UPCOMING -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="mb-3">
+
+                    <h3 class="mb-1">
+                        Upcoming Releases
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Scheduled releases coming up next.
+                    </p>
+
+                </div>
+
+
+                {% if upcoming_releases %}
+
+                    {% for release in upcoming_releases %}
+
+                        <div
+                            class="d-flex justify-content-between align-items-center border-bottom py-3"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    {{ release.title }}
+                                </strong>
+
+                                <div class="text-muted small">
+                                    {{ release.artist }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="text-end">
+
+                                <div class="mb-1">
+
+                                    {{ release.release_date.strftime(
+                                        "%b %d, %Y"
+                                    ) }}
+
+                                </div>
+
+                                <small class="text-muted">
+                                    {{ release.progress }}% complete
+                                </small>
+
+                                <div class="mt-2">
+
+                                    <a
+                                        href="{{ url_for(
+                                            'releases.release_detail',
+                                            release_id=release.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-dark"
+                                    >
+                                        Open
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-5">
+
+                        <h5>
+                            No upcoming releases
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Scheduled releases will appear here.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ROW 3: RELEASE PIPELINE -->
+
+<div
+    class="card border-0 shadow-sm"
+    id="releasePipeline"
+>
+
     <div class="card-body p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div
+            class="d-flex justify-content-between align-items-center mb-3"
+        >
 
             <div>
-                <h3 class="mb-1">Release Pipeline</h3>
+
+                <h3 class="mb-1">
+                    Release Pipeline
+                </h3>
 
                 <p class="text-muted mb-0">
                     Current progress across all active releases.
                 </p>
+
             </div>
+
 
             <a
                 href="{{ url_for('releases.releases') }}"
@@ -227,6 +589,7 @@
 
         </div>
 
+
         {% if releases %}
 
             <div class="table-responsive">
@@ -234,48 +597,113 @@
                 <table class="table align-middle">
 
                     <thead>
+
                         <tr>
-                            <th>Artist</th>
-                            <th>Release</th>
-                            <th>Current Stage</th>
-                            <th>Release Date</th>
-                            <th style="min-width: 180px;">Progress</th>
-                            <th>Status</th>
-                            <th></th>
+
+                            <th>
+                                Artist
+                            </th>
+
+                            <th>
+                                Release
+                            </th>
+
+                            <th>
+                                Current Stage
+                            </th>
+
+                            <th>
+                                Release Date
+                            </th>
+
+                            <th style="min-width: 210px;">
+                                Progress
+                            </th>
+
+                            <th>
+                                Health
+                            </th>
+
+                            <th>
+                            </th>
+
                         </tr>
+
                     </thead>
+
 
                     <tbody>
 
                         {% for release in releases %}
 
-                            <tr>
+                            <tr
+                                class="release-row"
+                                data-title="{{ release.title | lower }}"
+                                data-artist="{{ release.artist | lower }}"
+                                data-health="{{ release.health | lower }}"
+                                data-progress="{{ release.progress }}"
+                                data-soon="{{ 'true' if release.releasing_soon else 'false' }}"
+                            >
 
                                 <td>
                                     {{ release.artist }}
                                 </td>
 
+
                                 <td>
+
                                     <strong>
                                         {{ release.title }}
                                     </strong>
+
                                 </td>
+
 
                                 <td>
                                     {{ release.stage }}
                                 </td>
 
+
                                 <td>
                                     {{ release.release_date }}
                                 </td>
 
+
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
+
+                                    <div class="release-progress-container">
+
 
                                         <div
-                                            class="progress flex-grow-1"
+                                            class="d-flex justify-content-between mb-2"
+                                        >
+
+                                            <small class="text-muted">
+
+                                                {{ release.completed_tasks }}
+                                                /
+                                                {{ release.total_tasks }}
+                                                tasks
+
+                                            </small>
+
+
+                                            <small>
+
+                                                <strong>
+                                                    {{ release.progress }}%
+                                                </strong>
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <div
+                                            class="progress"
                                             style="height: 8px;"
                                         >
+
                                             <div
                                                 class="progress-bar bg-dark"
                                                 style="width: {{ release.progress }}%;"
@@ -285,31 +713,65 @@
                                                 aria-valuemax="100"
                                             >
                                             </div>
+
                                         </div>
 
-                                        <small>
-                                            {{ release.progress }}%
-                                        </small>
-
                                     </div>
+
                                 </td>
 
-                                <td>
-                                    <span class="badge bg-light text-dark border">
-                                        {{ release.status }}
-                                    </span>
-                                </td>
 
                                 <td>
+
+                                    {% if release.health == "Healthy" %}
+
+                                        <span
+                                            class="health-badge health-healthy"
+                                        >
+                                            <span class="health-dot"></span>
+
+                                            Healthy
+                                        </span>
+
+
+                                    {% elif release.health == "At Risk" %}
+
+                                        <span
+                                            class="health-badge health-risk"
+                                        >
+                                            <span class="health-dot"></span>
+
+                                            At Risk
+                                        </span>
+
+
+                                    {% else %}
+
+                                        <span
+                                            class="health-badge health-blocked"
+                                        >
+                                            <span class="health-dot"></span>
+
+                                            Blocked
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
                                     <a
                                         href="{{ url_for(
                                             'releases.release_detail',
                                             release_id=release.id
                                         ) }}"
-                                        class="btn btn-sm btn-outline-secondary"
+                                        class="btn btn-sm btn-outline-dark"
                                     >
-                                        View
+                                        Open
                                     </a>
+
                                 </td>
 
                             </tr>
@@ -320,13 +782,32 @@
 
                 </table>
 
+
+                <div
+                    id="noReleaseResults"
+                    class="text-center py-5 d-none"
+                >
+
+                    <h5>
+                        No releases found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Try another artist or release name.
+                    </p>
+
+                </div>
+
             </div>
+
 
         {% else %}
 
             <div class="text-center py-5">
 
-                <h5>No releases yet</h5>
+                <h5>
+                    No releases yet
+                </h5>
 
                 <p class="text-muted">
                     Create your first release to begin tracking progress.
@@ -344,6 +825,365 @@
         {% endif %}
 
     </div>
+
 </div>
+
+
+<!-- SEARCH + FILTER JAVASCRIPT -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const searchInput =
+            document.getElementById(
+                "releaseSearch"
+            );
+
+        const rows =
+            document.querySelectorAll(
+                ".release-row"
+            );
+
+        const searchResults =
+            document.getElementById(
+                "searchResults"
+            );
+
+        const filterCards =
+            document.querySelectorAll(
+                ".dashboard-filter-card"
+            );
+
+        const noResults =
+            document.getElementById(
+                "noReleaseResults"
+            );
+
+
+        let activeFilter = "all";
+
+
+        function filterReleases() {
+
+            const searchValue =
+                searchInput.value
+                    .toLowerCase()
+                    .trim();
+
+
+            let visibleCount = 0;
+
+
+            searchResults.innerHTML = "";
+
+
+            rows.forEach(
+                function (row) {
+
+                    const title =
+                        row.dataset.title || "";
+
+                    const artist =
+                        row.dataset.artist || "";
+
+                    const health =
+                        row.dataset.health || "";
+
+                    const progress =
+                        Number(
+                            row.dataset.progress || 0
+                        );
+
+                    const releasingSoon =
+                        row.dataset.soon === "true";
+
+
+                    const matchesSearch =
+                        title.includes(searchValue)
+                        ||
+                        artist.includes(searchValue);
+
+
+                    let matchesFilter = true;
+
+
+                    if (
+                        activeFilter === "healthy"
+                    ) {
+
+                        matchesFilter =
+                            health === "healthy";
+
+                    }
+
+
+                    if (
+                        activeFilter === "attention"
+                    ) {
+
+                        matchesFilter =
+                            progress < 50;
+
+                    }
+
+
+                    if (
+                        activeFilter === "soon"
+                    ) {
+
+                        matchesFilter =
+                            releasingSoon;
+
+                    }
+
+
+                    const shouldShow =
+                        matchesSearch
+                        &&
+                        matchesFilter;
+
+
+                    if (shouldShow) {
+
+                        row.style.display = "";
+
+                        visibleCount++;
+
+
+                        if (
+                            searchValue !== ""
+                        ) {
+
+                            const releaseName =
+                                row.querySelector(
+                                    "td:nth-child(2)"
+                                )
+                                .innerText
+                                .trim();
+
+
+                            const artistName =
+                                row.querySelector(
+                                    "td:nth-child(1)"
+                                )
+                                .innerText
+                                .trim();
+
+
+                            const openLink =
+                                row.querySelector(
+                                    "a"
+                                );
+
+
+                            const resultItem =
+                                document.createElement(
+                                    "a"
+                                );
+
+
+                            resultItem.href =
+                                openLink.href;
+
+
+                            resultItem.className =
+                                "list-group-item list-group-item-action";
+
+
+                            resultItem.innerHTML = `
+                                <strong>
+                                    ${releaseName}
+                                </strong>
+
+                                <div class="small text-muted">
+                                    ${artistName}
+                                </div>
+                            `;
+
+
+                            searchResults.appendChild(
+                                resultItem
+                            );
+
+                        }
+
+                    } else {
+
+                        row.style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+
+            if (
+                searchValue !== ""
+            ) {
+
+                if (
+                    visibleCount > 0
+                ) {
+
+                    searchResults
+                        .classList
+                        .remove(
+                            "d-none"
+                        );
+
+                } else {
+
+                    searchResults
+                        .classList
+                        .add(
+                            "d-none"
+                        );
+
+                }
+
+            } else {
+
+                searchResults
+                    .classList
+                    .add(
+                        "d-none"
+                    );
+
+            }
+
+
+            if (noResults) {
+
+                if (
+                    visibleCount === 0
+                    &&
+                    searchValue !== ""
+                ) {
+
+                    noResults
+                        .classList
+                        .remove(
+                            "d-none"
+                        );
+
+                } else {
+
+                    noResults
+                        .classList
+                        .add(
+                            "d-none"
+                        );
+
+                }
+
+            }
+
+        }
+
+
+        if (searchInput) {
+
+            searchInput.addEventListener(
+                "input",
+                filterReleases
+            );
+
+        }
+
+
+        filterCards.forEach(
+            function (card) {
+
+                card.addEventListener(
+                    "click",
+                    function () {
+
+                        activeFilter =
+                            card.dataset.filter;
+
+
+                        filterCards.forEach(
+                            function (item) {
+
+                                item.classList.remove(
+                                    "active-filter"
+                                );
+
+                            }
+                        );
+
+
+                        card.classList.add(
+                            "active-filter"
+                        );
+
+
+                        filterReleases();
+
+
+                        const pipeline =
+                            document.getElementById(
+                                "releasePipeline"
+                            );
+
+
+                        if (pipeline) {
+
+                            pipeline.scrollIntoView(
+                                {
+                                    behavior:
+                                        "smooth",
+
+                                    block:
+                                        "start"
+                                }
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const clickedInsideSearch =
+                    searchInput.contains(
+                        event.target
+                    )
+                    ||
+                    searchResults.contains(
+                        event.target
+                    );
+
+
+                if (
+                    !clickedInsideSearch
+                ) {
+
+                    searchResults
+                        .classList
+                        .add(
+                            "d-none"
+                        );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
 
 {% endblock %}

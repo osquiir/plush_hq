@@ -34,6 +34,7 @@ class ProjectFile(db.Model):
         db.String(100),
         nullable=True,
     )
+    
 
     file_url = db.Column(
         db.String(500),
