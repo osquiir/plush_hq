@@ -3,104 +3,197 @@
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-start mb-4">
+
     <div>
-        <h1 class="mb-1">Releases</h1>
+
+        <h1 class="mb-1">
+            Releases
+        </h1>
+
         <p class="text-muted mb-0">
-            View and manage all active music releases.
+
+            {% if current_user.is_artist() %}
+
+                View your active music releases.
+
+            {% else %}
+
+                View and manage all active music releases.
+
+            {% endif %}
+
         </p>
+
     </div>
 
-    <a
-        href="{{ url_for('releases.create_release') }}"
-        class="btn btn-dark"
-    >
-        + New Release
-    </a>
+
+    {% if not current_user.is_artist() %}
+
+        <a
+            href="{{ url_for('releases.create_release') }}"
+            class="btn btn-dark"
+        >
+            + New Release
+        </a>
+
+    {% endif %}
+
 </div>
 
+
 {% with messages = get_flashed_messages(with_categories=true) %}
+
     {% for category, message in messages %}
+
         <div class="alert alert-{{ category }}">
             {{ message }}
         </div>
+
     {% endfor %}
+
 {% endwith %}
 
+
 <div class="card border-0 shadow-sm">
+
     <div class="card-body p-4">
+
 
         {% if releases %}
 
             <div class="table-responsive">
+
                 <table class="table align-middle">
 
                     <thead>
+
                         <tr>
-                            <th>Artist</th>
-                            <th>Release</th>
-                            <th>Type</th>
-                            <th>Current Stage</th>
-                            <th>Release Date</th>
-                            <th>Progress</th>
-                            <th>Status</th>
-                            <th></th>
+
+                            <th>
+                                Artist
+                            </th>
+
+                            <th>
+                                Release
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Current Stage
+                            </th>
+
+                            <th>
+                                Release Date
+                            </th>
+
+                            <th>
+                                Progress
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                            </th>
+
                         </tr>
+
                     </thead>
 
+
                     <tbody>
+
                         {% for release in releases %}
+
                             <tr>
+
                                 <td>
                                     {{ release.artist.name }}
                                 </td>
 
+
                                 <td>
+
                                     <strong>
                                         {{ release.title }}
                                     </strong>
+
                                 </td>
+
 
                                 <td>
                                     {{ release.release_type or "Single" }}
                                 </td>
 
+
                                 <td>
                                     {{ release.current_stage or "Not selected" }}
                                 </td>
 
+
                                 <td>
+
                                     {% if release.release_date %}
+
                                         {{ release.release_date.strftime("%b %d, %Y") }}
+
                                     {% else %}
+
                                         Not scheduled
+
                                     {% endif %}
+
                                 </td>
 
+
                                 <td style="min-width: 160px;">
+
                                     <div class="d-flex align-items-center gap-2">
+
                                         <div
                                             class="progress flex-grow-1"
                                             style="height: 8px;"
                                         >
+
                                             <div
                                                 class="progress-bar bg-dark"
                                                 style="width: {{ release.progress }}%;"
-                                            ></div>
+                                                role="progressbar"
+                                                aria-valuenow="{{ release.progress }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100"
+                                            >
+                                            </div>
+
                                         </div>
+
 
                                         <small>
                                             {{ release.progress }}%
                                         </small>
+
                                     </div>
+
                                 </td>
 
+
                                 <td>
+
                                     <span class="badge bg-light text-dark">
+
                                         {{ release.status.replace("_", " ").title() }}
+
                                     </span>
+
                                 </td>
 
+
                                 <td>
+
                                     <a
                                         href="{{ url_for(
                                             'releases.release_detail',
@@ -110,35 +203,61 @@
                                     >
                                         View
                                     </a>
+
                                 </td>
+
                             </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
 
         {% else %}
 
             <div class="text-center py-5">
-                <h4>No releases yet</h4>
 
-                <p class="text-muted">
-                    Create your first release to begin tracking
-                    its workflow, files, notes, and deadlines.
-                </p>
+                {% if current_user.is_artist() %}
 
-                <a
-                    href="{{ url_for('releases.create_release') }}"
-                    class="btn btn-dark"
-                >
-                    Create First Release
-                </a>
+                    <h4>
+                        No releases available
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        There are currently no releases assigned
+                        to your artist account.
+                    </p>
+
+                {% else %}
+
+                    <h4>
+                        No releases yet
+                    </h4>
+
+                    <p class="text-muted">
+                        Create your first release to begin tracking
+                        its workflow, files, notes, and deadlines.
+                    </p>
+
+                    <a
+                        href="{{ url_for('releases.create_release') }}"
+                        class="btn btn-dark"
+                    >
+                        Create First Release
+                    </a>
+
+                {% endif %}
+
             </div>
 
         {% endif %}
 
     </div>
+
 </div>
 
 {% endblock %}

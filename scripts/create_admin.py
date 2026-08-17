@@ -13,32 +13,44 @@ from models import db
 from models.user import User
 
 
-def create_admin():
+def make_admin():
     with app.app_context():
 
-        existing = User.query.filter_by(
-            email="admin@plush.com"
+        email = input(
+            "Enter the email of the user to make admin: "
+        ).strip().lower()
+
+        user = User.query.filter_by(
+            email=email
         ).first()
 
-        if existing:
-            print("Admin already exists.")
+        if not user:
+            print("User not found.")
             return
 
-        admin = User(
-            name="Plush Admin",
-            email="admin@plush.com",
-            role="admin",
-        )
+        print()
+        print("User found:")
+        print(f"Name: {user.name}")
+        print(f"Email: {user.email}")
+        print(f"Current role: {user.role}")
+        print()
 
-        admin.set_password("ChangeMe123!")
+        confirm = input(
+            "Change this user to admin? (y/n): "
+        ).strip().lower()
 
-        db.session.add(admin)
+        if confirm != "y":
+            print("Cancelled.")
+            return
+
+        user.role = "admin"
+
         db.session.commit()
 
-        print("Admin created successfully.")
-        print("Email: admin@plush.com")
-        print("Password: ChangeMe123!")
+        print()
+        print("User updated successfully.")
+        print(f"{user.email} is now an admin.")
 
 
 if __name__ == "__main__":
-    create_admin()
+    make_admin()

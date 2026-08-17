@@ -5,7 +5,10 @@ from flask import Blueprint, render_template
 from models.activity import Activity
 from models.release import Release
 
-from flask_login import login_required
+from flask_login import (
+    current_user,
+    login_required,
+)
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -16,11 +19,28 @@ def dashboard():
     today = date.today()
     next_week = today + timedelta(days=7)
 
-    releases = (
-        Release.query
-        .order_by(Release.release_date.asc())
-        .all()
-    )
+    if current_user.is_artist():
+
+        releases = (
+            Release.query
+            .filter_by(
+                artist_id=current_user.artist_id
+            )
+            .order_by(
+                Release.release_date.asc()
+            )
+            .all()
+        )
+
+    else:
+
+        releases = (
+            Release.query
+            .order_by(
+                Release.release_date.asc()
+            )
+            .all()
+        )
 
     active_releases = [
         release
@@ -185,12 +205,37 @@ def dashboard():
 
     priorities = priorities[:5]
 
-    recent_activities = (
-        Activity.query
-        .order_by(Activity.created_at.desc())
-        .limit(8)
-        .all()
-    )
+    if current_user.is_artist():
+
+        artist_release_ids = [
+            release.id
+            for release in releases
+        ]
+
+        recent_activities = (
+            Activity.query
+            .filter(
+                Activity.release_id.in_(
+                    artist_release_ids
+                )
+            )
+            .order_by(
+                Activity.created_at.desc()
+            )
+            .limit(8)
+            .all()
+        )
+
+    else:
+
+        recent_activities = (
+            Activity.query
+            .order_by(
+                Activity.created_at.desc()
+            )
+            .limit(8)
+            .all()
+        )
 
     activities = [
         {
@@ -202,12 +247,30 @@ def dashboard():
         for activity in recent_activities
     ]
 
-    recent_releases = (
-        Release.query
-        .order_by(Release.updated_at.desc())
-        .limit(5)
-        .all()
-    )
+    if current_user.is_artist():
+
+        recent_releases = (
+            Release.query
+            .filter_by(
+                artist_id=current_user.artist_id
+            )
+            .order_by(
+                Release.updated_at.desc()
+            )
+            .limit(5)
+            .all()
+        )
+
+    else:
+
+        recent_releases = (
+            Release.query
+            .order_by(
+                Release.updated_at.desc()
+            )
+            .limit(5)
+            .all()
+        )
 
     recent_release_rows = [
         {

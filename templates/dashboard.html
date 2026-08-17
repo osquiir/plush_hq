@@ -18,12 +18,16 @@
 
     </div>
 
+    {% if not current_user.is_artist() %}
+
     <a
         href="{{ url_for('releases.create_release') }}"
         class="btn btn-dark"
     >
         + New Release
     </a>
+
+{% endif %}
 
 </div>
 
@@ -800,25 +804,39 @@
 
             </div>
 
-
         {% else %}
 
             <div class="text-center py-5">
 
-                <h5>
-                    No releases yet
-                </h5>
+                {% if current_user.is_artist() %}
 
-                <p class="text-muted">
-                    Create your first release to begin tracking progress.
-                </p>
+                    <h5>
+                        No releases available
+                    </h5>
 
-                <a
-                    href="{{ url_for('releases.create_release') }}"
-                    class="btn btn-dark"
-                >
-                    Create First Release
-                </a>
+                    <p class="text-muted mb-0">
+                        There are currently no releases assigned
+                        to your artist account.
+                    </p>
+
+                {% else %}
+
+                    <h5>
+                        No releases yet
+                    </h5>
+
+                    <p class="text-muted">
+                        Create your first release to begin tracking progress.
+                    </p>
+
+                    <a
+                        href="{{ url_for('releases.create_release') }}"
+                        class="btn btn-dark"
+                    >
+                        Create First Release
+                    </a>
+
+                {% endif %}
 
             </div>
 

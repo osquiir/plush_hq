@@ -104,6 +104,7 @@
 
                     <select
                         name="role"
+                        id="role"
                         class="form-select"
                         required
                     >
@@ -121,6 +122,164 @@
                         </option>
 
                     </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- ARTIST SETTINGS -->
+
+            <div
+                id="artistSection"
+                class="mt-4 d-none"
+            >
+
+                <hr>
+
+                <h5 class="mb-3">
+                    Artist Account
+                </h5>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label d-block">
+                        Artist Profile
+                    </label>
+
+                    <div class="form-check form-check-inline">
+
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="artist_mode"
+                            id="artistExisting"
+                            value="existing"
+                            checked
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="artistExisting"
+                        >
+                            Existing Artist
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-check form-check-inline">
+
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="artist_mode"
+                            id="artistNew"
+                            value="new"
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="artistNew"
+                        >
+                            New Artist
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EXISTING ARTIST -->
+
+                <div
+                    id="existingArtistFields"
+                    class="row g-3"
+                >
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Artist
+                        </label>
+
+                        <select
+                            name="artist_id"
+                            id="artistId"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Select an artist
+                            </option>
+
+                            {% for artist in artists %}
+
+                                <option value="{{ artist.id }}">
+                                    {{ artist.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NEW ARTIST -->
+
+                <div
+                    id="newArtistFields"
+                    class="row g-3 d-none"
+                >
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Artist Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="new_artist_name"
+                            id="newArtistName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Artist Email
+                        </label>
+
+                        <input
+                            type="email"
+                            name="new_artist_email"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Genre
+                        </label>
+
+                        <input
+                            type="text"
+                            name="new_artist_genre"
+                            class="form-control"
+                        >
+
+                    </div>
 
                 </div>
 
@@ -150,5 +309,119 @@
     </div>
 
 </div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const roleSelect =
+            document.getElementById("role");
+
+        const artistSection =
+            document.getElementById("artistSection");
+
+        const existingRadio =
+            document.getElementById("artistExisting");
+
+        const newRadio =
+            document.getElementById("artistNew");
+
+        const existingFields =
+            document.getElementById("existingArtistFields");
+
+        const newFields =
+            document.getElementById("newArtistFields");
+
+        const artistSelect =
+            document.getElementById("artistId");
+
+        const newArtistName =
+            document.getElementById("newArtistName");
+
+
+        function updateRole() {
+
+            if (
+                roleSelect.value === "artist"
+            ) {
+
+                artistSection.classList.remove(
+                    "d-none"
+                );
+
+                updateArtistMode();
+
+            } else {
+
+                artistSection.classList.add(
+                    "d-none"
+                );
+
+                artistSelect.required = false;
+                newArtistName.required = false;
+
+            }
+
+        }
+
+
+        function updateArtistMode() {
+
+            if (
+                existingRadio.checked
+            ) {
+
+                existingFields.classList.remove(
+                    "d-none"
+                );
+
+                newFields.classList.add(
+                    "d-none"
+                );
+
+                artistSelect.required = true;
+                newArtistName.required = false;
+
+            } else {
+
+                existingFields.classList.add(
+                    "d-none"
+                );
+
+                newFields.classList.remove(
+                    "d-none"
+                );
+
+                artistSelect.required = false;
+                newArtistName.required = true;
+
+            }
+
+        }
+
+
+        roleSelect.addEventListener(
+            "change",
+            updateRole
+        );
+
+        existingRadio.addEventListener(
+            "change",
+            updateArtistMode
+        );
+
+        newRadio.addEventListener(
+            "change",
+            updateArtistMode
+        );
+
+
+        updateRole();
+
+    }
+);
+</script>
 
 {% endblock %}
