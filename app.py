@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask, render_template
 from flask_login import LoginManager
 
@@ -49,14 +53,17 @@ def landing():
 
 
 # =========================================================
-# DEVELOPMENT DATABASE ROUTE
+# DATABASE TEST
 # =========================================================
 
-@app.route("/create-db")
-def create_db():
-    db.create_all()
+@app.route("/db-test")
+def db_test():
 
-    return "Database tables created successfully."
+    db.session.execute(
+        db.text("SELECT 1")
+    )
+
+    return "Database connection successful."
 
 
 # =========================================================
