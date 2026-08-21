@@ -1,6 +1,8 @@
 import os
 from datetime import date, datetime
 from uuid import uuid4
+from dotenv import load_dotenv
+from supabase import create_client
 
 from flask import (
     Blueprint,
@@ -29,6 +31,26 @@ from models.release import Release
 from models.task import Task
 from models.user import User
 
+load_dotenv()
+
+
+SUPABASE_URL = os.getenv(
+    "SUPABASE_URL"
+)
+
+SUPABASE_SECRET_KEY = os.getenv(
+    "SUPABASE_SECRET_KEY"
+)
+
+SUPABASE_BUCKET = os.getenv(
+    "SUPABASE_BUCKET"
+)
+
+
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_SECRET_KEY,
+)
 
 releases_bp = Blueprint(
     "releases",
@@ -58,7 +80,38 @@ DEFAULT_WORKFLOW = [
 # =========================================================
 # HELPERS
 # =========================================================
+def get_media_signed_url(storage_path):
 
+    if not storage_path:
+        return None
+
+    try:
+
+        response = (
+            supabase
+            .storage
+            .from_(SUPABASE_BUCKET)
+            .create_signed_url(
+                storage_path,
+                3600,
+            )
+        )
+
+        return (
+            response.get("signedURL")
+            or response.get("signedUrl")
+            or response.get("signed_url")
+        )
+
+    except Exception as error:
+
+        print(
+            "Failed to create signed URL:",
+            error,
+        )
+
+        return None
+    
 def artist_can_access_release(release_record):
 
     if not current_user.is_artist():
@@ -534,11 +587,8 @@ def release_detail(release_id):
                 project_file.file_type,
 
             "url":
-                url_for(
-                    "static",
-                    filename=(
-                        project_file.file_url
-                    ),
+                get_media_signed_url(
+                    project_file.file_url
                 ),
 
             "created_at":
@@ -1360,46 +1410,57 @@ def upload_media(release_id):
         .lower()
     )
 
-
     stored_filename = (
         f"{uuid4().hex}"
         f"{extension}"
     )
 
-
-    upload_folder = os.path.join(
-        current_app.root_path,
-        "static",
-        "uploads",
-        "releases",
-        str(
-            release_record.id
-        ),
-    )
-
-
-    os.makedirs(
-        upload_folder,
-        exist_ok=True,
-    )
-
-
-    file_path = os.path.join(
-        upload_folder,
-        stored_filename,
-    )
-
-
-    uploaded_file.save(
-        file_path
-    )
-
-
-    relative_url = (
+    storage_path = (
         f"uploads/releases/"
         f"{release_record.id}/"
         f"{stored_filename}"
     )
+
+    try:
+
+        file_bytes = uploaded_file.read()
+
+        upload_options = {
+            "upsert": "false",
+        }
+
+        if uploaded_file.mimetype:
+            upload_options["content-type"] = (
+                uploaded_file.mimetype
+            )
+
+        supabase.storage.from_(
+            SUPABASE_BUCKET
+        ).upload(
+            path=storage_path,
+            file=file_bytes,
+            file_options=upload_options,
+        )
+
+    except Exception as error:
+
+        print(
+            "Supabase upload failed:",
+            error,
+        )
+
+        flash(
+            "The file could not be uploaded.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#media"
+        )
 
 
     media_record = ProjectFile(
@@ -1407,7 +1468,7 @@ def upload_media(release_id):
         uploaded_by=current_user.id,
         file_name=original_filename,
         file_type=uploaded_file.mimetype,
-        file_url=relative_url,
+        file_url=storage_path,
         category=category,
         visibility=visibility,
     )
