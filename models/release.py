@@ -135,5 +135,12 @@ class Release(db.Model):
         cascade="all, delete-orphan",
     )
 
+    ad_campaigns = db.relationship(
+        "AdCampaign",
+        backref="release",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
+
     def __repr__(self):
         return f"<Release {self.title}>"

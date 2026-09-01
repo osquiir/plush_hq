@@ -1,32 +1,204 @@
 <div class="py-3">
 
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
     <div class="d-flex justify-content-between align-items-start mb-4">
+
         <div>
-            <h4 class="mb-1">Release Media</h4>
+            <h4 class="mb-1">
+                Release Media
+            </h4>
 
             <p class="text-muted mb-0">
-                Store audio, artwork, videos, and other creative assets
-                related to this release.
+                Manage ingestion assets, audio, artwork,
+                videos, documents, and promotional content.
             </p>
         </div>
 
-        <button
-            type="button"
-            class="btn btn-dark"
-            data-bs-toggle="modal"
-            data-bs-target="#uploadMediaModal"
-        >
-            Upload Media
-        </button>
+
+        {% if not current_user.is_artist() %}
+
+            <button
+                type="button"
+                class="btn btn-dark"
+                data-bs-toggle="modal"
+                data-bs-target="#uploadMediaModal"
+            >
+                Upload Media
+            </button>
+
+        {% endif %}
+
     </div>
 
+
+    <!-- ================================================= -->
+    <!-- FLASH MESSAGES -->
+    <!-- ================================================= -->
+
     {% with messages = get_flashed_messages(with_categories=true) %}
+
         {% for category, message in messages %}
+
             <div class="alert alert-{{ category }}">
                 {{ message }}
             </div>
+
         {% endfor %}
+
     {% endwith %}
+
+
+    <!-- ================================================= -->
+    <!-- REQUIRED INGESTION ASSETS -->
+    <!-- ================================================= -->
+
+    <div class="mb-4">
+
+        <div class="mb-3">
+
+            <h5 class="mb-1">
+                Required Ingestion Assets
+            </h5>
+
+            <p class="text-muted small mb-0">
+                These assets are required before the song
+                can be delivered for ingestion.
+            </p>
+
+        </div>
+
+
+        <div class="row g-3">
+
+            <!-- SINGLE ART -->
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+
+                            <strong>
+                                Single Art
+                            </strong>
+
+                            <div class="text-muted small mt-1">
+                                Final approved artwork for the release.
+                            </div>
+
+                        </div>
+
+
+                        {% set single_art = namespace(ready=false) %}
+
+                        {% for asset in ingestion.assets %}
+
+                            {% if asset.name == "Single Art" %}
+                                {% set single_art.ready = asset.ready %}
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        {% if single_art.ready %}
+
+                            <span class="badge bg-success flex-shrink-0">
+                                Ready
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-light text-dark border flex-shrink-0">
+                                Missing
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MASTERED AUDIO -->
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div>
+
+                            <strong>
+                                Mastered Audio
+                            </strong>
+
+                            <div class="text-muted small mt-1">
+                                Final mastered audio file for ingestion.
+                            </div>
+
+                        </div>
+
+
+                        {% set master_audio = namespace(ready=false) %}
+
+                        {% for asset in ingestion.assets %}
+
+                            {% if asset.name == "Mastered Audio" %}
+                                {% set master_audio.ready = asset.ready %}
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        {% if master_audio.ready %}
+
+                            <span class="badge bg-success flex-shrink-0">
+                                Ready
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-light text-dark border flex-shrink-0">
+                                Missing
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- MEDIA LIBRARY -->
+    <!-- ================================================= -->
+
+    <div class="mb-3">
+
+        <h5 class="mb-1">
+            Media Library
+        </h5>
+
+        <p class="text-muted small mb-0">
+            All files associated with this release.
+        </p>
+
+    </div>
+
 
     {% if files %}
 
@@ -35,53 +207,116 @@
             {% for file in files %}
 
                 <div class="col-md-6 col-xl-4">
+
                     <div class="border rounded p-3 h-100">
 
-                        <div class="d-flex justify-content-between gap-3">
+                        <!-- FILE NAME -->
+
+                        <strong
+                            class="d-block mb-1"
+                            style="
+                                overflow-wrap: anywhere;
+                                word-break: break-word;
+                            "
+                        >
+                            {{ file.name }}
+                        </strong>
 
 
-                        <div>
-                            <strong>
-                                {{ file.name }}
-                            </strong>
+                        <!-- CATEGORY -->
 
-                            <div class="text-muted small mt-1">
-                                {{ file.category }}
-                            </div>
+                        <div class="text-muted small mb-2">
+                            {{ file.category }}
+                        </div>
 
-                                <div class="mt-3">
-                                    <a
-                                        href="{{ file.url }}"
-                                        class="btn btn-sm btn-outline-dark"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+
+                        <!-- VISIBILITY -->
+
+                        <div class="mb-3">
+
+                            {% if file.visibility == "Artist Visible" %}
+
+                                <span class="badge bg-light text-dark border">
+                                    Artist Visible
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-light text-dark border">
+                                    Internal
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            {% if file.url %}
+
+                                <a
+                                    href="{{ file.url }}"
+                                    class="btn btn-sm btn-outline-dark"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View File
+                                </a>
+
+                            {% endif %}
+
+
+                            {% if not current_user.is_artist() %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'releases.delete_media',
+                                        file_id=file.id
+                                    ) }}"
+                                    class="d-inline"
+                                    onsubmit="
+                                        return confirm(
+                                            'Are you sure you want to delete this file?'
+                                        );
+                                    "
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger"
                                     >
-                                        View File
-                                    </a>
-                                </div>
-                            </div>
+                                        Delete
+                                    </button>
 
-                            <span class="badge bg-light text-dark border">
-                                Media
-                            </span>
+                                </form>
+
+                            {% endif %}
 
                         </div>
 
                     </div>
+
                 </div>
 
             {% endfor %}
 
         </div>
 
+
     {% else %}
 
         <div class="text-center border rounded py-5">
 
-            <h5>No media uploaded yet</h5>
+            <h5>
+                No media uploaded yet
+            </h5>
 
             <p class="text-muted mb-0">
-                Audio, artwork, and videos added to this release
+                Release assets and supporting media
                 will appear here.
             </p>
 
@@ -92,6 +327,12 @@
 </div>
 
 
+<!-- ===================================================== -->
+<!-- UPLOAD MEDIA MODAL -->
+<!-- ===================================================== -->
+
+{% if not current_user.is_artist() %}
+
 <div
     class="modal fade"
     id="uploadMediaModal"
@@ -99,7 +340,9 @@
     aria-labelledby="uploadMediaModalLabel"
     aria-hidden="true"
 >
+
     <div class="modal-dialog">
+
         <div class="modal-content">
 
             <div class="modal-header">
@@ -120,6 +363,7 @@
 
             </div>
 
+
             <div class="modal-body">
 
                 <form
@@ -131,6 +375,8 @@
                     ) }}"
                     enctype="multipart/form-data"
                 >
+
+                    <!-- FILE -->
 
                     <div class="mb-3">
 
@@ -151,6 +397,9 @@
 
                     </div>
 
+
+                    <!-- CATEGORY -->
+
                     <div class="mb-3">
 
                         <label
@@ -166,24 +415,46 @@
                             class="form-select"
                             required
                         >
-                            <option value="audio">
-                                Audio
-                            </option>
 
-                            <option value="artwork">
-                                Artwork
-                            </option>
+                            <optgroup label="Required Assets">
 
-                            <option value="video">
-                                Video
-                            </option>
+                                <option value="single_art">
+                                    Single Art
+                                </option>
 
-                            <option value="other">
-                                Other
-                            </option>
+                                <option value="master_audio">
+                                    Mastered Audio
+                                </option>
+
+                            </optgroup>
+
+
+                            <optgroup label="Additional Media">
+
+                                <option value="video">
+                                    Video
+                                </option>
+
+                                <option value="promo">
+                                    Promotional Asset
+                                </option>
+
+                                <option value="document">
+                                    Document
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                            </optgroup>
+
                         </select>
 
                     </div>
+
+
+                    <!-- VISIBILITY -->
 
                     <div class="mb-3">
 
@@ -199,6 +470,7 @@
                             name="visibility"
                             class="form-select"
                         >
+
                             <option value="internal">
                                 Internal — team only
                             </option>
@@ -206,6 +478,7 @@
                             <option value="artist_visible">
                                 Artist visible
                             </option>
+
                         </select>
 
                     </div>
@@ -213,6 +486,7 @@
                 </form>
 
             </div>
+
 
             <div class="modal-footer">
 
@@ -235,5 +509,9 @@
             </div>
 
         </div>
+
     </div>
+
 </div>
+
+{% endif %}

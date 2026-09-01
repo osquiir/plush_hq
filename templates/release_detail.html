@@ -3,7 +3,9 @@
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-start mb-4">
+
     <div>
+
         <a
             href="{{ url_for('dashboard.dashboard') }}"
             class="text-decoration-none text-secondary"
@@ -11,29 +13,47 @@
             ← Back to Dashboard
         </a>
 
-        <h1 class="mt-3 mb-1">{{ release.title }}</h1>
+        <h1 class="mt-3 mb-1">
+            {{ release.title }}
+        </h1>
 
         <p class="text-muted mb-0">
             {{ release.artist }} · {{ release.type }}
         </p>
+
     </div>
+
 
     <span class="badge bg-warning text-dark fs-6">
         {{ release.status }}
     </span>
+
 </div>
 
+
+<!-- ===================================================== -->
+<!-- RELEASE PROGRESS -->
+<!-- ===================================================== -->
+
 <div class="card border-0 shadow-sm p-4 mb-4">
+
     <div class="row align-items-center">
 
         <div class="col-md-8">
-            <p class="text-muted mb-1">Current Stage</p>
+
+            <p class="text-muted mb-1">
+                Current Stage
+            </p>
 
             <h3 class="mb-3">
                 {{ release.stage }}
             </h3>
 
-            <div class="progress" style="height: 14px;">
+            <div
+                class="progress"
+                style="height: 14px;"
+            >
+
                 <div
                     class="progress-bar bg-dark"
                     role="progressbar"
@@ -43,10 +63,14 @@
                     aria-valuemax="100"
                 >
                 </div>
+
             </div>
+
         </div>
 
+
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
             <p class="text-muted mb-1">
                 Overall Progress
             </p>
@@ -54,10 +78,17 @@
             <h2 class="mb-0">
                 {{ release.progress }}%
             </h2>
+
         </div>
 
     </div>
+
 </div>
+
+
+<!-- ===================================================== -->
+<!-- RELEASE TABS -->
+<!-- ===================================================== -->
 
 <div class="card border-0 shadow-sm">
 
@@ -69,7 +100,10 @@
             role="tablist"
         >
 
+            <!-- OVERVIEW -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link active"
                     id="overview-tab"
@@ -82,9 +116,14 @@
                 >
                     Overview
                 </button>
+
             </li>
 
+
+            <!-- WORKFLOW -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="workflow-tab"
@@ -97,9 +136,14 @@
                 >
                     Workflow
                 </button>
+
             </li>
 
+
+            <!-- MEDIA -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="media-tab"
@@ -112,24 +156,14 @@
                 >
                     Media
                 </button>
+
             </li>
-            <!--
+
+
+            <!-- METADATA -->
+
             <li class="nav-item" role="presentation">
-                <button
-                    class="nav-link"
-                    id="documents-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#documents"
-                    type="button"
-                    role="tab"
-                    aria-controls="documents"
-                    aria-selected="false"
-                >
-                    Documents
-                </button>
-            </li>
-            -->
-            <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="metadata-tab"
@@ -142,9 +176,14 @@
                 >
                     Metadata
                 </button>
+
             </li>
 
+
+            <!-- MARKETING -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="marketing-tab"
@@ -157,9 +196,34 @@
                 >
                     Marketing
                 </button>
+
             </li>
 
+
+            <!-- ADS -->
+
             <li class="nav-item" role="presentation">
+
+                <button
+                    class="nav-link"
+                    id="ads-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#ads"
+                    type="button"
+                    role="tab"
+                    aria-controls="ads"
+                    aria-selected="false"
+                >
+                    Ads
+                </button>
+
+            </li>
+
+
+            <!-- NOTES -->
+
+            <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="notes-tab"
@@ -172,9 +236,14 @@
                 >
                     Notes
                 </button>
+
             </li>
 
+
+            <!-- TIMELINE -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="timeline-tab"
@@ -187,9 +256,14 @@
                 >
                     Timeline
                 </button>
+
             </li>
 
+
+            <!-- ANALYTICS -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="analytics-tab"
@@ -202,9 +276,14 @@
                 >
                     Analytics
                 </button>
+
             </li>
 
+
+            <!-- AI INSIGHTS -->
+
             <li class="nav-item" role="presentation">
+
                 <button
                     class="nav-link"
                     id="ai-tab"
@@ -217,11 +296,17 @@
                 >
                     AI Insights
                 </button>
+
             </li>
 
         </ul>
 
     </div>
+
+
+    <!-- ================================================= -->
+    <!-- TAB CONTENT -->
+    <!-- ================================================= -->
 
     <div class="card-body">
 
@@ -230,6 +315,8 @@
             id="releaseTabsContent"
         >
 
+            <!-- OVERVIEW -->
+
             <div
                 class="tab-pane fade show active"
                 id="overview"
@@ -237,8 +324,13 @@
                 aria-labelledby="overview-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/overview.html" %}
+
             </div>
+
+
+            <!-- WORKFLOW -->
 
             <div
                 class="tab-pane fade"
@@ -247,8 +339,13 @@
                 aria-labelledby="workflow-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/workflow.html" %}
+
             </div>
+
+
+            <!-- MEDIA -->
 
             <div
                 class="tab-pane fade"
@@ -257,19 +354,14 @@
                 aria-labelledby="media-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/media.html" %}
+
             </div>
-            <!--
-            <div
-                class="tab-pane fade"
-                id="documents"
-                role="tabpanel"
-                aria-labelledby="documents-tab"
-                tabindex="0"
-            >
-                {% include "tabs/documents.html" %}
-            </div>
-            -->
+
+
+            <!-- METADATA -->
+
             <div
                 class="tab-pane fade"
                 id="metadata"
@@ -277,8 +369,13 @@
                 aria-labelledby="metadata-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/metadata.html" %}
+
             </div>
+
+
+            <!-- MARKETING -->
 
             <div
                 class="tab-pane fade"
@@ -287,8 +384,28 @@
                 aria-labelledby="marketing-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/marketing.html" %}
+
             </div>
+
+
+            <!-- ADS -->
+
+            <div
+                class="tab-pane fade"
+                id="ads"
+                role="tabpanel"
+                aria-labelledby="ads-tab"
+                tabindex="0"
+            >
+
+                {% include "tabs/ads.html" %}
+
+            </div>
+
+
+            <!-- NOTES -->
 
             <div
                 class="tab-pane fade"
@@ -297,8 +414,13 @@
                 aria-labelledby="notes-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/notes.html" %}
+
             </div>
+
+
+            <!-- TIMELINE -->
 
             <div
                 class="tab-pane fade"
@@ -307,8 +429,13 @@
                 aria-labelledby="timeline-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/timeline.html" %}
+
             </div>
+
+
+            <!-- ANALYTICS -->
 
             <div
                 class="tab-pane fade"
@@ -317,8 +444,13 @@
                 aria-labelledby="analytics-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/analytics.html" %}
+
             </div>
+
+
+            <!-- AI INSIGHTS -->
 
             <div
                 class="tab-pane fade"
@@ -327,7 +459,9 @@
                 aria-labelledby="ai-tab"
                 tabindex="0"
             >
+
                 {% include "tabs/ai.html" %}
+
             </div>
 
         </div>

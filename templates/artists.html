@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+        <h1 class="mb-1">
+            Artists
+        </h1>
+
+        <p class="text-muted mb-0">
+            Manage artist profiles, social links, and releases.
+        </p>
+    </div>
+
+    {% if not current_user.is_artist() %}
+
+        <a
+            href="{{ url_for('artists.create_artist') }}"
+            class="btn btn-dark"
+        >
+            + New Artist
+        </a>
+
+    {% endif %}
+
+</div>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% for category, message in messages %}
+
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+
+    {% endfor %}
+
+{% endwith %}
+
+
+{% if artists %}
+
+    <div class="row g-4">
+
+        {% for artist in artists %}
+
+            <div class="col-md-6 col-xl-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    {% if artist.display_image_url %}
+
+                        <img
+                            src="{{ artist.display_image_url }}"
+                            alt="{{ artist.name }}"
+                            class="card-img-top"
+                            style="
+                                height: 260px;
+                                object-fit: cover;
+                            "
+                        >
+
+                    {% else %}
+
+                        <div
+                            class="
+                                d-flex
+                                align-items-center
+                                justify-content-center
+                                bg-light
+                            "
+                            style="height: 260px;"
+                        >
+                            <span class="text-muted">
+                                No artist image
+                            </span>
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="card-body p-4">
+
+                        <h4 class="mb-1">
+                            {{ artist.name }}
+                        </h4>
+
+                        <p class="text-muted mb-3">
+                            {{ artist.genre or "Genre not specified" }}
+                        </p>
+
+
+                        <div class="mb-3">
+
+                            <strong>
+                                {{ artist.releases|length }}
+                            </strong>
+
+                            <span class="text-muted">
+                                release{% if artist.releases|length != 1 %}s{% endif %}
+                            </span>
+
+                        </div>
+
+
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+
+                            {% if artist.instagram_url %}
+                                <a
+                                    href="{{ artist.instagram_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    Instagram
+                                </a>
+                            {% endif %}
+
+                            {% if artist.spotify_url %}
+                                <a
+                                    href="{{ artist.spotify_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    Spotify
+                                </a>
+                            {% endif %}
+
+                            {% if artist.tiktok_url %}
+                                <a
+                                    href="{{ artist.tiktok_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    TikTok
+                                </a>
+                            {% endif %}
+
+                            {% if artist.youtube_url %}
+                                <a
+                                    href="{{ artist.youtube_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    YouTube
+                                </a>
+                            {% endif %}
+
+                        </div>
+
+
+                        <a
+                            href="{{ url_for(
+                                'artists.artist_detail',
+                                artist_id=artist.id
+                            ) }}"
+                            class="btn btn-outline-dark"
+                        >
+                            View Artist
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+{% else %}
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body text-center py-5">
+
+            <h4>
+                No artists yet
+            </h4>
+
+            {% if not current_user.is_artist() %}
+
+                <p class="text-muted">
+                    Create your first artist profile to get started.
+                </p>
+
+                <a
+                    href="{{ url_for('artists.create_artist') }}"
+                    class="btn btn-dark"
+                >
+                    Create First Artist
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

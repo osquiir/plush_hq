@@ -36,6 +36,21 @@ class Artist(db.Model):
         nullable=True,
     )
 
+    tiktok_url = db.Column(
+        db.String(255),
+        nullable=True,
+    )
+
+    youtube_url = db.Column(
+        db.String(255),
+        nullable=True,
+    )
+
+    image_url = db.Column(
+        db.String(500),
+        nullable=True,
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow,

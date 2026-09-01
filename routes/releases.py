@@ -30,6 +30,7 @@ from models.note import Note
 from models.release import Release
 from models.task import Task
 from models.user import User
+from models.ad_campaign import AdCampaign
 
 load_dotenv()
 
@@ -80,6 +81,211 @@ DEFAULT_WORKFLOW = [
 # =========================================================
 # HELPERS
 # =========================================================
+def get_ingestion_readiness(release_record):
+
+    files = release_record.files
+
+    metadata = release_record.song_metadata
+
+
+    # ---------------------------------------------
+    # SINGLE ART
+    # ---------------------------------------------
+
+    single_art_ready = any(
+        project_file.category
+        in {
+            "single_art",
+            "artwork",
+        }
+        for project_file in files
+    )
+
+
+    # ---------------------------------------------
+    # MASTERED AUDIO
+    # ---------------------------------------------
+
+    master_audio_ready = any(
+        project_file.category
+        in {
+            "master_audio",
+            "audio",
+        }
+        for project_file in files
+    )
+
+
+    # ---------------------------------------------
+    # METADATA
+    # ---------------------------------------------
+
+    metadata_ready = (
+        metadata is not None
+        and bool(
+            metadata.song_title
+            and metadata.song_title.strip()
+        )
+    )
+
+
+    # ---------------------------------------------
+    # LYRICS
+    # ---------------------------------------------
+
+    lyrics_ready = (
+        metadata is not None
+        and bool(
+            metadata.lyrics
+            and metadata.lyrics.strip()
+        )
+    )
+
+
+    assets = [
+        {
+            "name": "Single Art",
+            "ready": single_art_ready,
+        },
+        {
+            "name": "Mastered Audio",
+            "ready": master_audio_ready,
+        },
+        {
+            "name": "Metadata Information",
+            "ready": metadata_ready,
+        },
+        {
+            "name": "Lyrics",
+            "ready": lyrics_ready,
+        },
+    ]
+
+
+    completed = sum(
+        1
+        for asset in assets
+        if asset["ready"]
+    )
+
+    total = len(assets)
+
+    progress = round(
+        completed / total * 100
+    )
+
+
+    return {
+        "assets": assets,
+        "completed": completed,
+        "total": total,
+        "progress": progress,
+        "ready": completed == total,
+    }
+
+def sync_required_asset_task(
+    release_record,
+    category,
+    completed,
+):
+
+    task_map = {
+        "single_art": "Artwork created/approved",
+        "master_audio": "Master delivered",
+    }
+
+    task_name = task_map.get(
+        category
+    )
+
+    # This category is not connected
+    # to a workflow task.
+    if not task_name:
+        return
+
+    task = (
+        Task.query
+        .filter_by(
+            release_id=release_record.id,
+            task_name=task_name,
+        )
+        .first()
+    )
+
+    if not task:
+        return
+
+    if completed:
+
+        task.status = "done"
+
+        task.completed_at = (
+            datetime.utcnow()
+        )
+
+    else:
+
+        task.status = "todo"
+        task.completed_at = None
+
+
+def recalculate_release_progress(
+    release_record,
+):
+
+    total_tasks = len(
+        release_record.tasks
+    )
+
+    completed_tasks = sum(
+        1
+        for task in release_record.tasks
+        if task.status == "done"
+    )
+
+    release_record.progress = (
+        round(
+            completed_tasks
+            / total_tasks
+            * 100
+        )
+        if total_tasks
+        else 0
+    )
+
+
+    pending_tasks = [
+        task
+        for task in release_record.tasks
+        if task.status != "done"
+    ]
+
+
+    if pending_tasks:
+
+        release_record.current_stage = (
+            pending_tasks[0].task_name
+        )
+
+        if (
+            release_record.status
+            == "completed"
+        ):
+
+            release_record.status = (
+                "planning"
+            )
+
+    else:
+
+        release_record.current_stage = (
+            "Completed"
+        )
+
+        release_record.status = (
+            "completed"
+        )
+
 def get_media_signed_url(storage_path):
 
     if not storage_path:
@@ -774,6 +980,41 @@ def release_detail(release_id):
     }
 
 
+    # -----------------------------------------------------
+    # INGESTION READINESS
+    # -----------------------------------------------------
+
+    ingestion = get_ingestion_readiness(
+        release_record
+    )
+
+
+    # -----------------------------------------------------
+    # AD CAMPAIGNS
+    # -----------------------------------------------------
+
+    ad_campaigns = (
+        AdCampaign.query
+        .filter_by(
+            release_id=release_record.id
+        )
+        .order_by(
+            AdCampaign.created_at.desc()
+        )
+        .all()
+    )
+
+
+    total_ad_budget = sum(
+        campaign.budget or 0
+        for campaign in ad_campaigns
+    )
+
+
+    # -----------------------------------------------------
+    # RENDER
+    # -----------------------------------------------------
+
     return render_template(
         "release_detail.html",
         release=release,
@@ -783,6 +1024,9 @@ def release_detail(release_id):
         activities=activities,
         metadata=metadata,
         ai_summary=ai_summary,
+        ingestion=ingestion,
+        ad_campaigns=ad_campaigns,
+        total_ad_budget=total_ad_budget,
     )
 
 
@@ -1243,6 +1487,37 @@ def save_metadata(release_id):
         explicit
     )
 
+    metadata_complete = all([
+        metadata.song_title,
+        metadata.writers,
+        metadata.producers,
+        metadata.language,
+    ])
+
+    metadata_task = (
+        Task.query
+        .filter_by(
+            release_id=release_record.id,
+            task_name="Song metadata completed",
+        )
+        .first()
+    )
+
+    if metadata_task:
+
+        if metadata_complete:
+            metadata_task.status = "done"
+            metadata_task.completed_at = datetime.utcnow()
+
+        else:
+            metadata_task.status = "todo"
+            metadata_task.completed_at = None
+
+
+    recalculate_release_progress(
+        release_record
+    )
+
 
     db.session.flush()
 
@@ -1338,10 +1613,16 @@ def upload_media(release_id):
 
 
     allowed_categories = {
+        "single_art",
+        "master_audio",
+        "video",
+        "promo",
+        "document",
+        "other",
+
+        # Legacy categories
         "audio",
         "artwork",
-        "video",
-        "other",
     }
 
 
@@ -1378,6 +1659,43 @@ def upload_media(release_id):
     if visibility not in allowed_visibilities:
 
         visibility = "internal"
+
+
+    # =========================================================
+    # PREVENT DUPLICATE REQUIRED ASSETS
+    # =========================================================
+
+    if category in {
+        "single_art",
+        "master_audio",
+    }:
+
+        existing_asset = (
+            ProjectFile.query
+            .filter_by(
+                release_id=release_record.id,
+                category=category,
+            )
+            .first()
+        )
+
+        if existing_asset:
+
+            flash(
+                (
+                    "This release already has "
+                    f"{category.replace('_', ' ').title()}."
+                ),
+                "danger",
+            )
+
+            return redirect(
+                url_for(
+                    "releases.release_detail",
+                    release_id=release_record.id,
+                )
+                + "#media"
+            )
 
 
     original_filename = (
@@ -1421,6 +1739,7 @@ def upload_media(release_id):
         f"{stored_filename}"
     )
 
+
     try:
 
         file_bytes = uploaded_file.read()
@@ -1430,9 +1749,11 @@ def upload_media(release_id):
         }
 
         if uploaded_file.mimetype:
-            upload_options["content-type"] = (
-                uploaded_file.mimetype
-            )
+
+            upload_options[
+                "content-type"
+            ] = uploaded_file.mimetype
+
 
         supabase.storage.from_(
             SUPABASE_BUCKET
@@ -1441,6 +1762,7 @@ def upload_media(release_id):
             file=file_bytes,
             file_options=upload_options,
         )
+
 
     except Exception as error:
 
@@ -1481,6 +1803,26 @@ def upload_media(release_id):
     db.session.flush()
 
 
+    # =========================================================
+    # SYNC WORKFLOW WITH REQUIRED ASSET
+    # =========================================================
+
+    sync_required_asset_task(
+        release_record,
+        category,
+        True,
+    )
+
+
+    recalculate_release_progress(
+        release_record
+    )
+
+
+    # =========================================================
+    # ACTIVITY
+    # =========================================================
+
     activity = Activity(
         release_id=release_record.id,
         user_id=current_user.id,
@@ -1512,4 +1854,524 @@ def upload_media(release_id):
             release_id=release_record.id,
         )
         + "#media"
+    )
+
+
+# =========================================================
+# DELETE MEDIA
+# =========================================================
+
+@releases_bp.route(
+    "/media/<int:file_id>/delete",
+    methods=["POST"],
+)
+@login_required
+def delete_media(file_id):
+
+    media_record = (
+        ProjectFile.query.get_or_404(
+            file_id
+        )
+    )
+
+    release_record = (
+        media_record.release
+    )
+
+
+    # -----------------------------------------------------
+    # RELEASE ACCESS
+    # -----------------------------------------------------
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    # -----------------------------------------------------
+    # ARTISTS ARE VIEW-ONLY
+    # -----------------------------------------------------
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    file_name = (
+        media_record.file_name
+    )
+
+    storage_path = (
+        media_record.file_url
+    )
+
+    category = (
+        media_record.category
+    )
+
+
+    # -----------------------------------------------------
+    # DELETE FROM SUPABASE STORAGE
+    # -----------------------------------------------------
+
+    try:
+
+        if storage_path:
+
+            supabase.storage.from_(
+                SUPABASE_BUCKET
+            ).remove(
+                [storage_path]
+            )
+
+
+    except Exception as error:
+
+        print(
+            "Supabase delete failed:",
+            error,
+        )
+
+        flash(
+            "The file could not be deleted from storage.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#media"
+        )
+
+
+    # -----------------------------------------------------
+    # DELETE DATABASE RECORD
+    # -----------------------------------------------------
+
+    db.session.delete(
+        media_record
+    )
+
+    db.session.flush()
+
+
+    # -----------------------------------------------------
+    # SYNC WORKFLOW WITH REQUIRED ASSET
+    # -----------------------------------------------------
+
+    sync_required_asset_task(
+        release_record,
+        category,
+        False,
+    )
+
+
+    recalculate_release_progress(
+        release_record
+    )
+
+
+    # -----------------------------------------------------
+    # ACTIVITY
+    # -----------------------------------------------------
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Deleted media '
+            f'"{file_name}"'
+        ),
+        entity_type="project_file",
+        entity_id=None,
+    )
+
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Media deleted successfully.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#media"
+    )
+# =========================================================
+# CREATE AD CAMPAIGN
+# =========================================================
+
+@releases_bp.route(
+    "/releases/<int:release_id>/ads",
+    methods=["POST"],
+)
+@login_required
+def create_ad_campaign(release_id):
+
+    release_record = (
+        Release.query.get_or_404(
+            release_id
+        )
+    )
+
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    platform = request.form.get(
+        "platform",
+        "",
+    ).strip().lower()
+
+    campaign_name = request.form.get(
+        "campaign_name",
+        "",
+    ).strip()
+
+    budget_value = request.form.get(
+        "budget",
+        "",
+    ).strip()
+
+    start_date_value = request.form.get(
+        "start_date",
+        "",
+    ).strip()
+
+    end_date_value = request.form.get(
+        "end_date",
+        "",
+    ).strip()
+
+    status = request.form.get(
+        "status",
+        "planned",
+    ).strip().lower()
+
+    notes = request.form.get(
+        "notes",
+        "",
+    ).strip()
+
+
+    allowed_platforms = {
+        "meta",
+        "tiktok",
+        "youtube",
+        "google",
+        "other",
+    }
+
+    allowed_statuses = {
+        "planned",
+        "active",
+        "completed",
+    }
+
+
+    if not campaign_name:
+
+        flash(
+            "Campaign name is required.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#ads"
+        )
+
+
+    if platform not in allowed_platforms:
+        platform = "other"
+
+    if status not in allowed_statuses:
+        status = "planned"
+
+
+    budget = None
+
+    if budget_value:
+
+        try:
+
+            budget = float(
+                budget_value
+            )
+
+        except ValueError:
+
+            flash(
+                "Budget must be a valid number.",
+                "danger",
+            )
+
+            return redirect(
+                url_for(
+                    "releases.release_detail",
+                    release_id=release_record.id,
+                )
+                + "#ads"
+            )
+
+
+    start_date = None
+
+    if start_date_value:
+
+        try:
+
+            start_date = date.fromisoformat(
+                start_date_value
+            )
+
+        except ValueError:
+
+            flash(
+                "Start date is invalid.",
+                "danger",
+            )
+
+            return redirect(
+                url_for(
+                    "releases.release_detail",
+                    release_id=release_record.id,
+                )
+                + "#ads"
+            )
+
+
+    end_date = None
+
+    if end_date_value:
+
+        try:
+
+            end_date = date.fromisoformat(
+                end_date_value
+            )
+
+        except ValueError:
+
+            flash(
+                "End date is invalid.",
+                "danger",
+            )
+
+            return redirect(
+                url_for(
+                    "releases.release_detail",
+                    release_id=release_record.id,
+                )
+                + "#ads"
+            )
+
+
+    if (
+        start_date
+        and end_date
+        and end_date < start_date
+    ):
+
+        flash(
+            "End date cannot be before the start date.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#ads"
+        )
+
+
+    campaign = AdCampaign(
+        release_id=release_record.id,
+        platform=platform,
+        campaign_name=campaign_name,
+        budget=budget,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+        notes=notes or None,
+    )
+
+
+    db.session.add(
+        campaign
+    )
+
+    db.session.flush()
+
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Created ad campaign '
+            f'"{campaign_name}"'
+        ),
+        entity_type="ad_campaign",
+        entity_id=campaign.id,
+    )
+
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Ad campaign created successfully.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#ads"
+    )
+# =========================================================
+# DELETE AD CAMPAIGN
+# =========================================================
+
+@releases_bp.route(
+    "/ads/<int:campaign_id>/delete",
+    methods=["POST"],
+)
+@login_required
+def delete_ad_campaign(campaign_id):
+
+    campaign = (
+        AdCampaign.query.get_or_404(
+            campaign_id
+        )
+    )
+
+    release_record = campaign.release
+
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    campaign_name = (
+        campaign.campaign_name
+    )
+
+
+    db.session.delete(
+        campaign
+    )
+
+    db.session.flush()
+
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Deleted ad campaign '
+            f'"{campaign_name}"'
+        ),
+        entity_type="ad_campaign",
+        entity_id=None,
+    )
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Ad campaign deleted successfully.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#ads"
     )

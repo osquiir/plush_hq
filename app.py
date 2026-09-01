@@ -13,6 +13,7 @@ from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
 from routes.releases import releases_bp
 from routes.users import users_bp
+from routes.artists import artists_bp
 
 
 app = Flask(__name__)
@@ -70,6 +71,10 @@ app.register_blueprint(
 
 app.register_blueprint(
     users_bp
+)
+
+app.register_blueprint(
+    artists_bp
 )
 
 

@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <a
+        href="{{ url_for('artists.artists') }}"
+        class="text-decoration-none text-secondary"
+    >
+        ← Back to Artists
+    </a>
+
+</div>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% for category, message in messages %}
+
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+
+    {% endfor %}
+
+{% endwith %}
+
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="row g-4 align-items-center">
+
+
+            <div class="col-md-4 col-lg-3">
+
+                {% if artist.image_url %}
+
+                    <img
+                        src="{{ artist.image_url }}"
+                        alt="{{ artist.name }}"
+                        class="img-fluid rounded"
+                        style="
+                            width: 100%;
+                            height: 260px;
+                            object-fit: cover;
+                        "
+                    >
+
+                {% else %}
+
+                    <div
+                        class="
+                            bg-light
+                            rounded
+                            d-flex
+                            align-items-center
+                            justify-content-center
+                        "
+                        style="height: 260px;"
+                    >
+                        <span class="text-muted">
+                            No artist image
+                        </span>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="col-md-8 col-lg-9">
+
+                <div class="
+                    d-flex
+                    justify-content-between
+                    align-items-start
+                ">
+
+                    <div>
+
+                        <h1 class="mb-1">
+                            {{ artist.name }}
+                        </h1>
+
+                        <p class="text-muted mb-3">
+                            {{ artist.genre or "Genre not specified" }}
+                        </p>
+
+                    </div>
+
+
+                    {% if not current_user.is_artist() %}
+
+                        <a
+                            href="{{ url_for(
+                                'artists.edit_artist',
+                                artist_id=artist.id
+                            ) }}"
+                            class="btn btn-outline-dark"
+                        >
+                            Edit Artist
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if artist.email %}
+
+                    <div class="mb-3">
+
+                        <div class="text-muted small">
+                            Contact
+                        </div>
+
+                        <a
+                            href="mailto:{{ artist.email }}"
+                            class="text-decoration-none"
+                        >
+                            {{ artist.email }}
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    {% if artist.instagram_url %}
+                        <a
+                            href="{{ artist.instagram_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-outline-secondary"
+                        >
+                            Instagram
+                        </a>
+                    {% endif %}
+
+                    {% if artist.spotify_url %}
+                        <a
+                            href="{{ artist.spotify_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-outline-secondary"
+                        >
+                            Spotify
+                        </a>
+                    {% endif %}
+
+                    {% if artist.tiktok_url %}
+                        <a
+                            href="{{ artist.tiktok_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-outline-secondary"
+                        >
+                            TikTok
+                        </a>
+                    {% endif %}
+
+                    {% if artist.youtube_url %}
+                        <a
+                            href="{{ artist.youtube_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-outline-secondary"
+                        >
+                            YouTube
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Releases
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Releases associated with {{ artist.name }}.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if releases %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+                            <th>Release</th>
+                            <th>Type</th>
+                            <th>Release Date</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for release in releases %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ release.title }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ release.release_type or "Single" }}
+                                </td>
+
+                                <td>
+
+                                    {% if release.release_date %}
+                                        {{ release.release_date.strftime("%b %d, %Y") }}
+                                    {% else %}
+                                        Not scheduled
+                                    {% endif %}
+
+                                </td>
+
+                                <td style="min-width: 170px;">
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <div
+                                            class="progress flex-grow-1"
+                                            style="height: 8px;"
+                                        >
+
+                                            <div
+                                                class="progress-bar bg-dark"
+                                                style="width: {{ release.progress }}%;"
+                                            >
+                                            </div>
+
+                                        </div>
+
+                                        <small>
+                                            {{ release.progress }}%
+                                        </small>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-light text-dark">
+                                        {{ release.status.replace("_", " ").title() }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'releases.release_detail',
+                                            release_id=release.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-dark"
+                                    >
+                                        View
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <h5>
+                    No releases yet
+                </h5>
+
+                <p class="text-muted mb-0">
+                    This artist does not have any releases yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

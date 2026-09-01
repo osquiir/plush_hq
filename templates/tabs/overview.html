@@ -43,3 +43,181 @@
     </div>
 
 </div>
+
+
+<!-- ===================================================== -->
+<!-- RELEASE ASSETS / INGESTION READINESS -->
+<!-- ===================================================== -->
+
+<div class="card border-0 shadow-sm mt-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Release Assets
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Required assets before the song is ready for ingestion.
+                </p>
+
+            </div>
+
+
+            {% if ingestion.ready %}
+
+                <span class="badge bg-success fs-6">
+                    Ready for Ingestion
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-warning text-dark fs-6">
+                    Not Ready
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="row g-3">
+
+            {% for asset in ingestion.assets %}
+
+                <div class="col-md-6 col-xl-3">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <div class="d-flex align-items-center gap-2 mb-2">
+
+                            {% if asset.ready %}
+
+                                <span
+                                    class="
+                                        d-inline-flex
+                                        align-items-center
+                                        justify-content-center
+                                        bg-success
+                                        text-white
+                                        rounded-circle
+                                    "
+                                    style="
+                                        width: 28px;
+                                        height: 28px;
+                                    "
+                                >
+                                    ✓
+                                </span>
+
+                            {% else %}
+
+                                <span
+                                    class="
+                                        d-inline-flex
+                                        align-items-center
+                                        justify-content-center
+                                        bg-light
+                                        text-secondary
+                                        border
+                                        rounded-circle
+                                    "
+                                    style="
+                                        width: 28px;
+                                        height: 28px;
+                                    "
+                                >
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                            <strong>
+                                {{ asset.name }}
+                            </strong>
+
+                        </div>
+
+
+                        {% if asset.ready %}
+
+                            <small class="text-success">
+                                Ready
+                            </small>
+
+                        {% else %}
+
+                            <small class="text-muted">
+                                Missing
+                            </small>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="mt-4">
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span>
+                    Ingestion Readiness
+                </span>
+
+                <strong>
+                    {{ ingestion.completed }}
+                    /
+                    {{ ingestion.total }}
+                </strong>
+
+            </div>
+
+
+            <div
+                class="progress"
+                style="height: 10px;"
+            >
+
+                <div
+                    class="
+                        progress-bar
+                        {% if ingestion.ready %}
+                            bg-success
+                        {% else %}
+                            bg-dark
+                        {% endif %}
+                    "
+                    role="progressbar"
+                    style="width: {{ ingestion.progress }}%;"
+                    aria-valuenow="{{ ingestion.progress }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="text-end mt-2">
+
+                <small class="text-muted">
+                    {{ ingestion.progress }}% ready
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -15,3 +15,4 @@ from .activity import Activity
 from .comment import Comment
 from .calendar_event import CalendarEvent
 from .template_link import TemplateLink
+from .ad_campaign import AdCampaign
