@@ -1,22 +1,35 @@
 <div class="py-3">
 
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
     <div class="mb-4">
+
         <h4 class="mb-1">
-            Song Database
+            Metadata Information
         </h4>
 
-        <p class="text-muted">
-            Store all information related to the song.
+        <p class="text-muted mb-0">
+            Store delivery metadata, publishing information,
+            credits, licensing details, and lyrics for this release.
         </p>
+
     </div>
 
+
     {% with messages = get_flashed_messages(with_categories=true) %}
+
         {% for category, message in messages %}
+
             <div class="alert alert-{{ category }}">
                 {{ message }}
             </div>
+
         {% endfor %}
+
     {% endwith %}
+
 
     <form
         method="POST"
@@ -24,150 +37,243 @@
             'releases.save_metadata',
             release_id=release.id
         ) }}"
+        id="metadata-form"
     >
 
-        <div class="row g-3">
 
-            <div class="col-md-6">
+        <!-- ================================================= -->
+        <!-- SONG INFORMATION -->
+        <!-- ================================================= -->
 
-                <label class="form-label">
-                    Song Title
-                </label>
+        <div class="border rounded p-4 mb-4">
 
-                <input
-                    type="text"
-                    name="song_title"
-                    class="form-control"
-                    value="{{ metadata.song_title }}"
-                    required
-                >
+            <div class="mb-4">
 
-            </div>
+                <h5 class="mb-1">
+                    Song Information
+                </h5>
 
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    ISRC
-                </label>
-
-                <input
-                    type="text"
-                    name="isrc"
-                    class="form-control"
-                    value="{{ metadata.isrc }}"
-                >
+                <p class="text-muted small mb-0">
+                    Core metadata used for distribution and delivery.
+                </p>
 
             </div>
 
-            <div class="col-md-3">
 
-                <label class="form-label">
-                    UPC
-                </label>
+            <div class="row g-3">
 
-                <input
-                    type="text"
-                    name="upc"
-                    class="form-control"
-                    value="{{ metadata.upc }}"
-                >
 
-            </div>
+                <div class="col-md-6">
 
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Language
-                </label>
-
-                <input
-                    type="text"
-                    name="language"
-                    class="form-control"
-                    value="{{ metadata.language }}"
-                >
-
-            </div>
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Writers
-                </label>
-
-                <input
-                    type="text"
-                    name="writers"
-                    class="form-control"
-                    value="{{ metadata.writers }}"
-                >
-
-            </div>
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Producers
-                </label>
-
-                <input
-                    type="text"
-                    name="producers"
-                    class="form-control"
-                    value="{{ metadata.producers }}"
-                >
-
-            </div>
-
-            <div class="col-12">
-
-                <label class="form-label">
-                    Credits
-                </label>
-
-                <textarea
-                    name="credits"
-                    class="form-control"
-                    rows="3"
-                >{{ metadata.credits }}</textarea>
-
-            </div>
-
-            <div class="col-12">
-
-                <label class="form-label">
-                    Lyrics
-                </label>
-
-                <textarea
-                    name="lyrics"
-                    class="form-control"
-                    rows="8"
-                >{{ metadata.lyrics }}</textarea>
-
-            </div>
-
-            <div class="col-12">
-
-                <div class="form-check">
+                    <label class="form-label">
+                        Song Title
+                    </label>
 
                     <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="explicit"
-                        id="explicit"
-
-                        {% if metadata.explicit %}
-                            checked
-                        {% endif %}
+                        type="text"
+                        name="song_title"
+                        class="form-control"
+                        value="{{ metadata.song_title or '' }}"
+                        required
                     >
 
-                    <label
-                        class="form-check-label"
-                        for="explicit"
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Main Artist(s)
+                    </label>
+
+                    <input
+                        type="text"
+                        name="main_artists"
+                        class="form-control"
+                        value="{{ metadata.main_artists or release.artist or '' }}"
                     >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Featured Artist(s)
+                    </label>
+
+                    <input
+                        type="text"
+                        name="featured_artists"
+                        class="form-control"
+                        value="{{ metadata.featured_artists or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        ISRC
+                    </label>
+
+                    <input
+                        type="text"
+                        name="isrc"
+                        class="form-control"
+                        value="{{ metadata.isrc or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        UPC
+                    </label>
+
+                    <input
+                        type="text"
+                        name="upc"
+                        class="form-control"
+                        value="{{ metadata.upc or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Language
+                    </label>
+
+                    <input
+                        type="text"
+                        name="language"
+                        class="form-control"
+                        value="{{ metadata.language or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Release Date
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ release.release_date }}"
+                        disabled
+                    >
+
+                    <div class="form-text">
+                        Managed from the release itself.
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label d-block">
                         Explicit Content
                     </label>
+
+                    <div class="form-check mt-2">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="explicit"
+                            id="explicit"
+                            {% if metadata.explicit %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="explicit"
+                        >
+                            Explicit
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        P Line
+                    </label>
+
+                    <input
+                        type="text"
+                        name="p_line"
+                        class="form-control"
+                        value="{{ metadata.p_line or '' }}"
+                        placeholder="℗ ..."
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        C Line
+                    </label>
+
+                    <input
+                        type="text"
+                        name="c_line"
+                        class="form-control"
+                        value="{{ metadata.c_line or '' }}"
+                        placeholder="© ..."
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Apple Music Link
+                    </label>
+
+                    <input
+                        type="url"
+                        name="apple_url"
+                        class="form-control"
+                        value="{{ metadata.apple_url or '' }}"
+                        placeholder="https://music.apple.com/..."
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Spotify Link
+                    </label>
+
+                    <input
+                        type="url"
+                        name="spotify_url"
+                        class="form-control"
+                        value="{{ metadata.spotify_url or '' }}"
+                        placeholder="https://open.spotify.com/..."
+                    >
 
                 </div>
 
@@ -175,17 +281,1041 @@
 
         </div>
 
-        <div class="text-end mt-4">
 
-            <button
-                class="btn btn-dark"
-                type="submit"
+        <!-- ================================================= -->
+        <!-- WRITERS & PUBLISHING -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <div
+                class="d-flex justify-content-between align-items-start mb-4"
             >
-                Save Metadata
-            </button>
+
+                <div>
+
+                    <h5 class="mb-1">
+                        Writers & Publishing
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Songwriter, publisher, ownership split,
+                        and IPI information.
+                    </p>
+
+                </div>
+
+
+                {% if not current_user.is_artist() %}
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-dark"
+                        id="add-writer-button"
+                    >
+                        + Add Writer
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+
+            <div
+                id="writers-container"
+                class="d-flex flex-column gap-3"
+            >
+
+                {% if release_writers|default([]) %}
+
+                    {% for writer in release_writers %}
+
+                        <div class="writer-row border rounded p-3">
+
+                            <div class="row g-3 align-items-end">
+
+                                <div class="col-md-3">
+
+                                    <label class="form-label">
+                                        Writer Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="writer_name[]"
+                                        class="form-control"
+                                        value="{{ writer.writer_name }}"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label class="form-label">
+                                        PRO / Publisher
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="pro_publisher[]"
+                                        class="form-control"
+                                        value="{{ writer.pro_publisher or '' }}"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-2">
+
+                                    <label class="form-label">
+                                        Split %
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        name="split_percent[]"
+                                        class="form-control split-input"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value="{{ writer.split_percent if writer.split_percent is not none else '' }}"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label class="form-label">
+                                        Writer IPI #
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="ipi_number[]"
+                                        class="form-control"
+                                        value="{{ writer.ipi_number or '' }}"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-1">
+
+                                    {% if not current_user.is_artist() %}
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-danger w-100 remove-writer-button"
+                                            title="Remove writer"
+                                        >
+                                            ×
+                                        </button>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <div class="writer-row border rounded p-3">
+
+                        <div class="row g-3 align-items-end">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Writer Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="writer_name[]"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    PRO / Publisher
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="pro_publisher[]"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    Split %
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="split_percent[]"
+                                    class="form-control split-input"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Writer IPI #
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="ipi_number[]"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-1">
+
+                                {% if not current_user.is_artist() %}
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger w-100 remove-writer-button"
+                                        title="Remove writer"
+                                    >
+                                        ×
+                                    </button>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="d-flex justify-content-end mt-3">
+
+                <div class="text-end">
+
+                    <span class="text-muted small">
+                        Total Split
+                    </span>
+
+                    <div>
+                        <strong id="total-writer-split">
+                            0%
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
+
+
+        <!-- ================================================= -->
+        <!-- RECORDING CREDITS -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <div class="mb-4">
+
+                <h5 class="mb-1">
+                    Recording Credits
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Production, engineering, mixing, mastering,
+                    and artwork credits.
+                </p>
+
+            </div>
+
+
+            <div class="row g-3">
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Producer(s)
+                    </label>
+
+                    <input
+                        type="text"
+                        name="producers"
+                        class="form-control"
+                        value="{{ metadata.producers or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Executive Producer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="executive_producer"
+                        class="form-control"
+                        value="{{ metadata.executive_producer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Vocal Production
+                    </label>
+
+                    <input
+                        type="text"
+                        name="vocal_production"
+                        class="form-control"
+                        value="{{ metadata.vocal_production or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Recording Engineer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="recording_engineer"
+                        class="form-control"
+                        value="{{ metadata.recording_engineer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Recorded At
+                    </label>
+
+                    <input
+                        type="text"
+                        name="recorded_at"
+                        class="form-control"
+                        value="{{ metadata.recorded_at or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mixing Engineer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="mixing_engineer"
+                        class="form-control"
+                        value="{{ metadata.mixing_engineer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mixed At
+                    </label>
+
+                    <input
+                        type="text"
+                        name="mixed_at"
+                        class="form-control"
+                        value="{{ metadata.mixed_at or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Immersive Mixing Engineer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="immersive_mixing_engineer"
+                        class="form-control"
+                        value="{{ metadata.immersive_mixing_engineer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mastering Engineer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="mastering_engineer"
+                        class="form-control"
+                        value="{{ metadata.mastering_engineer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mastered At
+                    </label>
+
+                    <input
+                        type="text"
+                        name="mastered_at"
+                        class="form-control"
+                        value="{{ metadata.mastered_at or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Immersive Mastering Engineer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="immersive_mastering_engineer"
+                        class="form-control"
+                        value="{{ metadata.immersive_mastering_engineer or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Artwork Design
+                    </label>
+
+                    <input
+                        type="text"
+                        name="artwork_design"
+                        class="form-control"
+                        value="{{ metadata.artwork_design or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Artwork Photography
+                    </label>
+
+                    <input
+                        type="text"
+                        name="artwork_photography"
+                        class="form-control"
+                        value="{{ metadata.artwork_photography or '' }}"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- VIDEO CREDITS -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <div class="mb-4">
+
+                <h5 class="mb-1">
+                    Video Credits
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Music video production and post-production credits.
+                </p>
+
+            </div>
+
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Director
+                    </label>
+
+                    <input
+                        type="text"
+                        name="video_director"
+                        class="form-control"
+                        value="{{ metadata.video_director or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Video Production House
+                    </label>
+
+                    <input
+                        type="text"
+                        name="video_production_house"
+                        class="form-control"
+                        value="{{ metadata.video_production_house or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Video Editor
+                    </label>
+
+                    <input
+                        type="text"
+                        name="video_editor"
+                        class="form-control"
+                        value="{{ metadata.video_editor or '' }}"
+                    >
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Color Grading
+                    </label>
+
+                    <input
+                        type="text"
+                        name="color_grading"
+                        class="form-control"
+                        value="{{ metadata.color_grading or '' }}"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LICENSING -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <div class="mb-4">
+
+                <h5 class="mb-1">
+                    Licensing Information
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Flag special rights or licensing requirements.
+                </p>
+
+            </div>
+
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="cover-recording"
+                            name="cover_recording"
+                            {% if metadata.cover_recording %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="cover-recording"
+                        >
+                            Cover Recording
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="adaptation"
+                            name="adaptation"
+                            {% if metadata.adaptation %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="adaptation"
+                        >
+                            Adaptation
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="sample"
+                            name="sample"
+                            {% if metadata.sample %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="sample"
+                        >
+                            Contains Sample
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LYRICS -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <div class="mb-3">
+
+                <h5 class="mb-1">
+                    Lyrics
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Full lyrics for ingestion and distribution.
+                </p>
+
+            </div>
+
+
+            <textarea
+                name="lyrics"
+                class="form-control"
+                rows="12"
+                placeholder="Enter the full lyrics..."
+            >{{ metadata.lyrics or '' }}</textarea>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LEGACY / ADDITIONAL CREDITS -->
+        <!-- ================================================= -->
+
+        <div class="border rounded p-4 mb-4">
+
+            <h5 class="mb-3">
+                Additional Credits
+            </h5>
+
+            <textarea
+                name="credits"
+                class="form-control"
+                rows="4"
+                placeholder="Additional credits or information..."
+            >{{ metadata.credits or '' }}</textarea>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SAVE -->
+        <!-- ================================================= -->
+
+        {% if not current_user.is_artist() %}
+
+            <div class="text-end">
+
+                <button
+                    class="btn btn-dark"
+                    type="submit"
+                >
+                    Save Metadata
+                </button>
+
+            </div>
+
+        {% endif %}
 
     </form>
 
 </div>
+
+
+<!-- ===================================================== -->
+<!-- WRITER TEMPLATE -->
+<!-- ===================================================== -->
+
+<template id="writer-row-template">
+
+    <div class="writer-row border rounded p-3">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Writer Name
+                </label>
+
+                <input
+                    type="text"
+                    name="writer_name[]"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    PRO / Publisher
+                </label>
+
+                <input
+                    type="text"
+                    name="pro_publisher[]"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <label class="form-label">
+                    Split %
+                </label>
+
+                <input
+                    type="number"
+                    name="split_percent[]"
+                    class="form-control split-input"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Writer IPI #
+                </label>
+
+                <input
+                    type="text"
+                    name="ipi_number[]"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-1">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-danger w-100 remove-writer-button"
+                    title="Remove writer"
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</template>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const writersContainer =
+        document.getElementById("writers-container");
+
+    const addWriterButton =
+        document.getElementById("add-writer-button");
+
+    const writerTemplate =
+        document.getElementById("writer-row-template");
+
+    const totalSplitElement =
+        document.getElementById("total-writer-split");
+
+
+    function updateSplitTotal() {
+
+        let total = 0;
+
+        document
+            .querySelectorAll(".split-input")
+            .forEach(function (input) {
+
+                const value = parseFloat(
+                    input.value
+                );
+
+                if (!isNaN(value)) {
+                    total += value;
+                }
+
+            });
+
+
+        const roundedTotal =
+            Math.round(total * 100) / 100;
+
+
+        totalSplitElement.textContent =
+            roundedTotal + "%";
+
+
+        if (roundedTotal === 100) {
+
+            totalSplitElement.classList.remove(
+                "text-danger",
+                "text-warning"
+            );
+
+            totalSplitElement.classList.add(
+                "text-success"
+            );
+
+        } else if (roundedTotal > 100) {
+
+            totalSplitElement.classList.remove(
+                "text-success",
+                "text-warning"
+            );
+
+            totalSplitElement.classList.add(
+                "text-danger"
+            );
+
+        } else {
+
+            totalSplitElement.classList.remove(
+                "text-success",
+                "text-danger"
+            );
+
+            totalSplitElement.classList.add(
+                "text-warning"
+            );
+
+        }
+
+    }
+
+
+    function attachWriterEvents(row) {
+
+        const removeButton =
+            row.querySelector(
+                ".remove-writer-button"
+            );
+
+        if (removeButton) {
+
+            removeButton.addEventListener(
+                "click",
+                function () {
+
+                    const rows =
+                        writersContainer.querySelectorAll(
+                            ".writer-row"
+                        );
+
+
+                    if (rows.length > 1) {
+
+                        row.remove();
+
+                    } else {
+
+                        row
+                            .querySelectorAll("input")
+                            .forEach(function (input) {
+
+                                input.value = "";
+
+                            });
+
+                    }
+
+
+                    updateSplitTotal();
+
+                }
+            );
+
+        }
+
+
+        const splitInput =
+            row.querySelector(
+                ".split-input"
+            );
+
+        if (splitInput) {
+
+            splitInput.addEventListener(
+                "input",
+                updateSplitTotal
+            );
+
+        }
+
+    }
+
+
+    if (addWriterButton) {
+
+        addWriterButton.addEventListener(
+            "click",
+            function () {
+
+                const clone =
+                    writerTemplate.content
+                        .cloneNode(true);
+
+                const row =
+                    clone.querySelector(
+                        ".writer-row"
+                    );
+
+                writersContainer.appendChild(
+                    row
+                );
+
+                attachWriterEvents(
+                    row
+                );
+
+                updateSplitTotal();
+
+            }
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(".writer-row")
+        .forEach(function (row) {
+
+            attachWriterEvents(
+                row
+            );
+
+        });
+
+
+    updateSplitTotal();
+
+});
+</script>

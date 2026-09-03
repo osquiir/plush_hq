@@ -91,6 +91,13 @@ class Release(db.Model):
         cascade="all, delete-orphan",
     )
 
+    writers = db.relationship(
+        "ReleaseWriter",
+        backref="release",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
+
     song_metadata = db.relationship(
         "SongMetadata",
         backref="release",
@@ -137,6 +144,12 @@ class Release(db.Model):
 
     ad_campaigns = db.relationship(
         "AdCampaign",
+        backref="release",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
+    content_ideas = db.relationship(
+        "ContentIdea",
         backref="release",
         lazy=True,
         cascade="all, delete-orphan",

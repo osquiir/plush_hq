@@ -3,6 +3,8 @@ from datetime import date, datetime
 from uuid import uuid4
 from dotenv import load_dotenv
 from supabase import create_client
+from models.release_writer import ReleaseWriter
+from models.content_idea import ContentIdea
 
 from flask import (
     Blueprint,
@@ -914,6 +916,7 @@ def release_detail(release_id):
 
 
     # -----------------------------------------------------
+   # -----------------------------------------------------
     # METADATA
     # -----------------------------------------------------
 
@@ -924,10 +927,26 @@ def release_detail(release_id):
 
     metadata = {
 
+        # =================================================
+        # SONG INFORMATION
+        # =================================================
+
         "song_title": (
             metadata_record.song_title
             if metadata_record
             else release_record.title
+        ),
+
+        "main_artists": (
+            metadata_record.main_artists
+            if metadata_record
+            else release_record.artist.name
+        ),
+
+        "featured_artists": (
+            metadata_record.featured_artists
+            if metadata_record
+            else ""
         ),
 
         "isrc": (
@@ -948,14 +967,178 @@ def release_detail(release_id):
             else ""
         ),
 
-        "writers": (
-            metadata_record.writers
+        "p_line": (
+            metadata_record.p_line
             if metadata_record
             else ""
         ),
 
+        "c_line": (
+            metadata_record.c_line
+            if metadata_record
+            else ""
+        ),
+
+        "apple_url": (
+            metadata_record.apple_url
+            if metadata_record
+            else ""
+        ),
+
+        "spotify_url": (
+            metadata_record.spotify_url
+            if metadata_record
+            else ""
+        ),
+
+        "explicit": (
+            metadata_record.explicit
+            if metadata_record
+            else False
+        ),
+
+
+        # =================================================
+        # RECORDING CREDITS
+        # =================================================
+
         "producers": (
             metadata_record.producers
+            if metadata_record
+            else ""
+        ),
+
+        "executive_producer": (
+            metadata_record.executive_producer
+            if metadata_record
+            else ""
+        ),
+
+        "vocal_production": (
+            metadata_record.vocal_production
+            if metadata_record
+            else ""
+        ),
+
+        "recording_engineer": (
+            metadata_record.recording_engineer
+            if metadata_record
+            else ""
+        ),
+
+        "recorded_at": (
+            metadata_record.recorded_at
+            if metadata_record
+            else ""
+        ),
+
+        "mixing_engineer": (
+            metadata_record.mixing_engineer
+            if metadata_record
+            else ""
+        ),
+
+        "mixed_at": (
+            metadata_record.mixed_at
+            if metadata_record
+            else ""
+        ),
+
+        "immersive_mixing_engineer": (
+            metadata_record.immersive_mixing_engineer
+            if metadata_record
+            else ""
+        ),
+
+        "mastering_engineer": (
+            metadata_record.mastering_engineer
+            if metadata_record
+            else ""
+        ),
+
+        "mastered_at": (
+            metadata_record.mastered_at
+            if metadata_record
+            else ""
+        ),
+
+        "immersive_mastering_engineer": (
+            metadata_record.immersive_mastering_engineer
+            if metadata_record
+            else ""
+        ),
+
+        "artwork_design": (
+            metadata_record.artwork_design
+            if metadata_record
+            else ""
+        ),
+
+        "artwork_photography": (
+            metadata_record.artwork_photography
+            if metadata_record
+            else ""
+        ),
+
+
+        # =================================================
+        # VIDEO CREDITS
+        # =================================================
+
+        "video_director": (
+            metadata_record.video_director
+            if metadata_record
+            else ""
+        ),
+
+        "video_production_house": (
+            metadata_record.video_production_house
+            if metadata_record
+            else ""
+        ),
+
+        "video_editor": (
+            metadata_record.video_editor
+            if metadata_record
+            else ""
+        ),
+
+        "color_grading": (
+            metadata_record.color_grading
+            if metadata_record
+            else ""
+        ),
+
+
+        # =================================================
+        # LICENSING
+        # =================================================
+
+        "cover_recording": (
+            metadata_record.cover_recording
+            if metadata_record
+            else False
+        ),
+
+        "adaptation": (
+            metadata_record.adaptation
+            if metadata_record
+            else False
+        ),
+
+        "sample": (
+            metadata_record.sample
+            if metadata_record
+            else False
+        ),
+
+
+        # =================================================
+        # LYRICS / LEGACY
+        # =================================================
+
+        "lyrics": (
+            metadata_record.lyrics
             if metadata_record
             else ""
         ),
@@ -966,19 +1149,28 @@ def release_detail(release_id):
             else ""
         ),
 
-        "lyrics": (
-            metadata_record.lyrics
+        "writers": (
+            metadata_record.writers
             if metadata_record
             else ""
         ),
-
-        "explicit": (
-            metadata_record.explicit
-            if metadata_record
-            else False
-        ),
     }
 
+
+    # -----------------------------------------------------
+    # RELEASE WRITERS
+    # -----------------------------------------------------
+
+    release_writers = (
+        ReleaseWriter.query
+        .filter_by(
+            release_id=release_record.id
+        )
+        .order_by(
+            ReleaseWriter.id.asc()
+        )
+        .all()
+    )
 
     # -----------------------------------------------------
     # INGESTION READINESS
@@ -1010,6 +1202,35 @@ def release_detail(release_id):
         for campaign in ad_campaigns
     )
 
+    # -----------------------------------------------------
+    # CONTENT IDEAS
+    # -----------------------------------------------------
+
+    content_ideas = (
+        ContentIdea.query
+        .filter_by(
+            release_id=release_record.id
+        )
+        .order_by(
+            ContentIdea.created_at.desc()
+        )
+        .all()
+    )
+
+
+    main_content_ideas = [
+        idea
+        for idea in content_ideas
+        if idea.channel_group == "main"
+    ]
+
+
+    secondary_content_ideas = [
+        idea
+        for idea in content_ideas
+        if idea.channel_group == "secondary"
+    ]
+
 
     # -----------------------------------------------------
     # RENDER
@@ -1027,6 +1248,9 @@ def release_detail(release_id):
         ingestion=ingestion,
         ad_campaigns=ad_campaigns,
         total_ad_budget=total_ad_budget,
+        release_writers=release_writers,
+        main_content_ideas=main_content_ideas,
+        secondary_content_ideas=secondary_content_ideas,
     )
 
 
@@ -1315,6 +1539,10 @@ def add_note(release_id):
 # SAVE METADATA
 # =========================================================
 
+# =========================================================
+# SAVE METADATA
+# =========================================================
+
 @releases_bp.route(
     "/releases/<int:release_id>/metadata",
     methods=["POST"],
@@ -1328,6 +1556,10 @@ def save_metadata(release_id):
         )
     )
 
+
+    # -----------------------------------------------------
+    # ACCESS
+    # -----------------------------------------------------
 
     if not artist_can_access_release(
         release_record
@@ -1353,8 +1585,22 @@ def save_metadata(release_id):
         return artist_block
 
 
+    # -----------------------------------------------------
+    # SONG INFORMATION
+    # -----------------------------------------------------
+
     song_title = request.form.get(
         "song_title",
+        "",
+    ).strip()
+
+    main_artists = request.form.get(
+        "main_artists",
+        "",
+    ).strip()
+
+    featured_artists = request.form.get(
+        "featured_artists",
         "",
     ).strip()
 
@@ -1373,23 +1619,23 @@ def save_metadata(release_id):
         "",
     ).strip()
 
-    writers = request.form.get(
-        "writers",
+    p_line = request.form.get(
+        "p_line",
         "",
     ).strip()
 
-    producers = request.form.get(
-        "producers",
+    c_line = request.form.get(
+        "c_line",
         "",
     ).strip()
 
-    credits = request.form.get(
-        "credits",
+    apple_url = request.form.get(
+        "apple_url",
         "",
     ).strip()
 
-    lyrics = request.form.get(
-        "lyrics",
+    spotify_url = request.form.get(
+        "spotify_url",
         "",
     ).strip()
 
@@ -1400,6 +1646,146 @@ def save_metadata(release_id):
         == "on"
     )
 
+
+    # -----------------------------------------------------
+    # RECORDING CREDITS
+    # -----------------------------------------------------
+
+    producers = request.form.get(
+        "producers",
+        "",
+    ).strip()
+
+    executive_producer = request.form.get(
+        "executive_producer",
+        "",
+    ).strip()
+
+    vocal_production = request.form.get(
+        "vocal_production",
+        "",
+    ).strip()
+
+    recording_engineer = request.form.get(
+        "recording_engineer",
+        "",
+    ).strip()
+
+    recorded_at = request.form.get(
+        "recorded_at",
+        "",
+    ).strip()
+
+    mixing_engineer = request.form.get(
+        "mixing_engineer",
+        "",
+    ).strip()
+
+    mixed_at = request.form.get(
+        "mixed_at",
+        "",
+    ).strip()
+
+    immersive_mixing_engineer = request.form.get(
+        "immersive_mixing_engineer",
+        "",
+    ).strip()
+
+    mastering_engineer = request.form.get(
+        "mastering_engineer",
+        "",
+    ).strip()
+
+    mastered_at = request.form.get(
+        "mastered_at",
+        "",
+    ).strip()
+
+    immersive_mastering_engineer = request.form.get(
+        "immersive_mastering_engineer",
+        "",
+    ).strip()
+
+    artwork_design = request.form.get(
+        "artwork_design",
+        "",
+    ).strip()
+
+    artwork_photography = request.form.get(
+        "artwork_photography",
+        "",
+    ).strip()
+
+
+    # -----------------------------------------------------
+    # VIDEO CREDITS
+    # -----------------------------------------------------
+
+    video_director = request.form.get(
+        "video_director",
+        "",
+    ).strip()
+
+    video_production_house = request.form.get(
+        "video_production_house",
+        "",
+    ).strip()
+
+    video_editor = request.form.get(
+        "video_editor",
+        "",
+    ).strip()
+
+    color_grading = request.form.get(
+        "color_grading",
+        "",
+    ).strip()
+
+
+    # -----------------------------------------------------
+    # LICENSING
+    # -----------------------------------------------------
+
+    cover_recording = (
+        request.form.get(
+            "cover_recording"
+        )
+        == "on"
+    )
+
+    adaptation = (
+        request.form.get(
+            "adaptation"
+        )
+        == "on"
+    )
+
+    sample = (
+        request.form.get(
+            "sample"
+        )
+        == "on"
+    )
+
+
+    # -----------------------------------------------------
+    # LYRICS / CREDITS
+    # -----------------------------------------------------
+
+    lyrics = request.form.get(
+        "lyrics",
+        "",
+    ).strip()
+
+    credits = request.form.get(
+        "credits",
+        "",
+    ).strip()
+
+
+    # -----------------------------------------------------
+    # VALIDATION
+    # -----------------------------------------------------
 
     if not song_title:
 
@@ -1416,6 +1802,165 @@ def save_metadata(release_id):
             + "#metadata"
         )
 
+
+    # -----------------------------------------------------
+    # WRITERS FROM FORM
+    # -----------------------------------------------------
+
+    writer_names = request.form.getlist(
+        "writer_name[]"
+    )
+
+    pro_publishers = request.form.getlist(
+        "pro_publisher[]"
+    )
+
+    split_values = request.form.getlist(
+        "split_percent[]"
+    )
+
+    ipi_numbers = request.form.getlist(
+        "ipi_number[]"
+    )
+
+
+    writers_to_save = []
+
+    for index, writer_name in enumerate(
+        writer_names
+    ):
+
+        writer_name = (
+            writer_name.strip()
+        )
+
+        if not writer_name:
+            continue
+
+
+        pro_publisher = (
+            pro_publishers[index].strip()
+            if index < len(pro_publishers)
+            else ""
+        )
+
+        ipi_number = (
+            ipi_numbers[index].strip()
+            if index < len(ipi_numbers)
+            else ""
+        )
+
+        split_text = (
+            split_values[index].strip()
+            if index < len(split_values)
+            else ""
+        )
+
+
+        split_percent = None
+
+        if split_text:
+
+            try:
+
+                split_percent = float(
+                    split_text
+                )
+
+            except ValueError:
+
+                flash(
+                    (
+                        f"Split for {writer_name} "
+                        "must be a valid number."
+                    ),
+                    "danger",
+                )
+
+                return redirect(
+                    url_for(
+                        "releases.release_detail",
+                        release_id=release_record.id,
+                    )
+                    + "#metadata"
+                )
+
+
+            if (
+                split_percent < 0
+                or split_percent > 100
+            ):
+
+                flash(
+                    (
+                        f"Split for {writer_name} "
+                        "must be between 0 and 100."
+                    ),
+                    "danger",
+                )
+
+                return redirect(
+                    url_for(
+                        "releases.release_detail",
+                        release_id=release_record.id,
+                    )
+                    + "#metadata"
+                )
+
+
+        writers_to_save.append(
+            {
+                "writer_name":
+                    writer_name,
+
+                "pro_publisher":
+                    pro_publisher or None,
+
+                "split_percent":
+                    split_percent,
+
+                "ipi_number":
+                    ipi_number or None,
+            }
+        )
+
+
+    # If splits were entered, require them to equal 100%.
+    entered_splits = [
+        writer["split_percent"]
+        for writer in writers_to_save
+        if writer["split_percent"] is not None
+    ]
+
+
+    if entered_splits:
+
+        total_split = sum(
+            entered_splits
+        )
+
+        if abs(total_split - 100) > 0.01:
+
+            flash(
+                (
+                    "Writer splits must total 100%. "
+                    f"Current total: {total_split:.2f}%."
+                ),
+                "danger",
+            )
+
+            return redirect(
+                url_for(
+                    "releases.release_detail",
+                    release_id=release_record.id,
+                )
+                + "#metadata"
+            )
+
+
+    # -----------------------------------------------------
+    # CREATE / UPDATE METADATA
+    # -----------------------------------------------------
 
     metadata = (
         release_record.song_metadata
@@ -1444,8 +1989,22 @@ def save_metadata(release_id):
         )
 
 
+    # -----------------------------------------------------
+    # SONG INFORMATION
+    # -----------------------------------------------------
+
     metadata.song_title = (
         song_title
+    )
+
+    metadata.main_artists = (
+        main_artists
+        or None
+    )
+
+    metadata.featured_artists = (
+        featured_artists
+        or None
     )
 
     metadata.isrc = (
@@ -1463,13 +2022,149 @@ def save_metadata(release_id):
         or None
     )
 
-    metadata.writers = (
-        writers
+    metadata.p_line = (
+        p_line
         or None
     )
 
+    metadata.c_line = (
+        c_line
+        or None
+    )
+
+    metadata.apple_url = (
+        apple_url
+        or None
+    )
+
+    metadata.spotify_url = (
+        spotify_url
+        or None
+    )
+
+    metadata.explicit = (
+        explicit
+    )
+
+
+    # -----------------------------------------------------
+    # RECORDING CREDITS
+    # -----------------------------------------------------
+
     metadata.producers = (
         producers
+        or None
+    )
+
+    metadata.executive_producer = (
+        executive_producer
+        or None
+    )
+
+    metadata.vocal_production = (
+        vocal_production
+        or None
+    )
+
+    metadata.recording_engineer = (
+        recording_engineer
+        or None
+    )
+
+    metadata.recorded_at = (
+        recorded_at
+        or None
+    )
+
+    metadata.mixing_engineer = (
+        mixing_engineer
+        or None
+    )
+
+    metadata.mixed_at = (
+        mixed_at
+        or None
+    )
+
+    metadata.immersive_mixing_engineer = (
+        immersive_mixing_engineer
+        or None
+    )
+
+    metadata.mastering_engineer = (
+        mastering_engineer
+        or None
+    )
+
+    metadata.mastered_at = (
+        mastered_at
+        or None
+    )
+
+    metadata.immersive_mastering_engineer = (
+        immersive_mastering_engineer
+        or None
+    )
+
+    metadata.artwork_design = (
+        artwork_design
+        or None
+    )
+
+    metadata.artwork_photography = (
+        artwork_photography
+        or None
+    )
+
+
+    # -----------------------------------------------------
+    # VIDEO CREDITS
+    # -----------------------------------------------------
+
+    metadata.video_director = (
+        video_director
+        or None
+    )
+
+    metadata.video_production_house = (
+        video_production_house
+        or None
+    )
+
+    metadata.video_editor = (
+        video_editor
+        or None
+    )
+
+    metadata.color_grading = (
+        color_grading
+        or None
+    )
+
+
+    # -----------------------------------------------------
+    # LICENSING
+    # -----------------------------------------------------
+
+    metadata.cover_recording = (
+        cover_recording
+    )
+
+    metadata.adaptation = (
+        adaptation
+    )
+
+    metadata.sample = (
+        sample
+    )
+
+
+    # -----------------------------------------------------
+    # LYRICS / CREDITS
+    # -----------------------------------------------------
+
+    metadata.lyrics = (
+        lyrics
         or None
     )
 
@@ -1478,21 +2173,62 @@ def save_metadata(release_id):
         or None
     )
 
-    metadata.lyrics = (
-        lyrics
+
+    # -----------------------------------------------------
+    # REPLACE WRITERS
+    # -----------------------------------------------------
+
+    ReleaseWriter.query.filter_by(
+        release_id=release_record.id
+    ).delete(
+        synchronize_session=False
+    )
+
+
+    for writer_data in writers_to_save:
+
+        writer = ReleaseWriter(
+            release_id=release_record.id,
+            writer_name=writer_data[
+                "writer_name"
+            ],
+            pro_publisher=writer_data[
+                "pro_publisher"
+            ],
+            split_percent=writer_data[
+                "split_percent"
+            ],
+            ipi_number=writer_data[
+                "ipi_number"
+            ],
+        )
+
+        db.session.add(
+            writer
+        )
+
+
+    # Keep legacy writers populated for compatibility.
+    metadata.writers = (
+        ", ".join(
+            writer["writer_name"]
+            for writer in writers_to_save
+        )
         or None
     )
 
-    metadata.explicit = (
-        explicit
-    )
+
+    # -----------------------------------------------------
+    # WORKFLOW SYNC
+    # -----------------------------------------------------
 
     metadata_complete = all([
         metadata.song_title,
-        metadata.writers,
+        metadata.main_artists,
         metadata.producers,
         metadata.language,
     ])
+
 
     metadata_task = (
         Task.query
@@ -1503,13 +2239,19 @@ def save_metadata(release_id):
         .first()
     )
 
+
     if metadata_task:
 
         if metadata_complete:
+
             metadata_task.status = "done"
-            metadata_task.completed_at = datetime.utcnow()
+
+            metadata_task.completed_at = (
+                datetime.utcnow()
+            )
 
         else:
+
             metadata_task.status = "todo"
             metadata_task.completed_at = None
 
@@ -1519,27 +2261,56 @@ def save_metadata(release_id):
     )
 
 
-    db.session.flush()
+    # -----------------------------------------------------
+    # SAVE
+    # -----------------------------------------------------
+
+    try:
+
+        db.session.flush()
 
 
-    activity = Activity(
-        release_id=release_record.id,
-        user_id=current_user.id,
-        action=action,
-        entity_type="song_metadata",
-        entity_id=metadata.id,
-    )
+        activity = Activity(
+            release_id=release_record.id,
+            user_id=current_user.id,
+            action=action,
+            entity_type="song_metadata",
+            entity_id=metadata.id,
+        )
 
 
-    db.session.add(
-        activity
-    )
+        db.session.add(
+            activity
+        )
 
-    db.session.commit()
+        db.session.commit()
+
+
+    except Exception as error:
+
+        db.session.rollback()
+
+        print(
+            "Metadata save failed:",
+            error,
+        )
+
+        flash(
+            "The metadata could not be saved.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#metadata"
+        )
 
 
     flash(
-        "Song metadata saved successfully.",
+        "Metadata information saved successfully.",
         "success",
     )
 
@@ -1551,7 +2322,6 @@ def save_metadata(release_id):
         )
         + "#metadata"
     )
-
 
 # =========================================================
 # UPLOAD MEDIA
@@ -1613,8 +2383,16 @@ def upload_media(release_id):
 
 
     allowed_categories = {
+        # Metadata Information Sheet assets
         "single_art",
         "master_audio",
+        "clean_master",
+        "spotify_canvas",
+        "tiktok_timestamps",
+        "visualizer",
+        "artwork_template",
+
+        # Additional media
         "video",
         "promo",
         "document",
@@ -1668,6 +2446,11 @@ def upload_media(release_id):
     if category in {
         "single_art",
         "master_audio",
+        "clean_master",
+        "spotify_canvas",
+        "tiktok_timestamps",
+        "visualizer",
+        "artwork_template",
     }:
 
         existing_asset = (
@@ -2374,4 +3157,375 @@ def delete_ad_campaign(campaign_id):
             release_id=release_record.id,
         )
         + "#ads"
+    )
+
+# =========================================================
+# CREATE CONTENT IDEA
+# =========================================================
+
+@releases_bp.route(
+    "/releases/<int:release_id>/content-ideas",
+    methods=["POST"],
+)
+@login_required
+def create_content_idea(release_id):
+
+    release_record = (
+        Release.query.get_or_404(
+            release_id
+        )
+    )
+
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    channel_group = request.form.get(
+        "channel_group",
+        "main",
+    ).strip().lower()
+
+    category = request.form.get(
+        "category",
+        "",
+    ).strip()
+
+    concept = request.form.get(
+        "concept",
+        "",
+    ).strip()
+
+    reference_url = request.form.get(
+        "reference_url",
+        "",
+    ).strip()
+
+    notes = request.form.get(
+        "notes",
+        "",
+    ).strip()
+
+    status = request.form.get(
+        "status",
+        "idea",
+    ).strip().lower()
+
+
+    allowed_groups = {
+        "main",
+        "secondary",
+    }
+
+    allowed_statuses = {
+        "idea",
+        "planned",
+        "in_progress",
+        "approved",
+        "posted",
+    }
+
+
+    if channel_group not in allowed_groups:
+        channel_group = "main"
+
+
+    if status not in allowed_statuses:
+        status = "idea"
+
+
+    if not concept:
+
+        flash(
+            "Content concept is required.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#marketing"
+        )
+
+
+    content_idea = ContentIdea(
+        release_id=release_record.id,
+        channel_group=channel_group,
+        category=category or None,
+        concept=concept,
+        reference_url=reference_url or None,
+        notes=notes or None,
+        status=status,
+    )
+
+
+    db.session.add(
+        content_idea
+    )
+
+    db.session.flush()
+
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Created content idea '
+            f'"{concept[:80]}"'
+        ),
+        entity_type="content_idea",
+        entity_id=content_idea.id,
+    )
+
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Content idea created successfully.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#marketing"
+    )
+
+
+# =========================================================
+# UPDATE CONTENT IDEA STATUS
+# =========================================================
+
+@releases_bp.route(
+    "/content-ideas/<int:idea_id>/status",
+    methods=["POST"],
+)
+@login_required
+def update_content_idea_status(idea_id):
+
+    content_idea = (
+        ContentIdea.query.get_or_404(
+            idea_id
+        )
+    )
+
+    release_record = (
+        content_idea.release
+    )
+
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    status = request.form.get(
+        "status",
+        "idea",
+    ).strip().lower()
+
+
+    allowed_statuses = {
+        "idea",
+        "planned",
+        "in_progress",
+        "approved",
+        "posted",
+    }
+
+
+    if status not in allowed_statuses:
+
+        flash(
+            "Invalid content idea status.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.release_detail",
+                release_id=release_record.id,
+            )
+            + "#marketing"
+        )
+
+
+    content_idea.status = (
+        status
+    )
+
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Updated content idea '
+            f'"{content_idea.concept[:80]}" '
+            f'to {status.replace("_", " ").title()}'
+        ),
+        entity_type="content_idea",
+        entity_id=content_idea.id,
+    )
+
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Content idea status updated.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#marketing"
+    )
+
+
+# =========================================================
+# DELETE CONTENT IDEA
+# =========================================================
+
+@releases_bp.route(
+    "/content-ideas/<int:idea_id>/delete",
+    methods=["POST"],
+)
+@login_required
+def delete_content_idea(idea_id):
+
+    content_idea = (
+        ContentIdea.query.get_or_404(
+            idea_id
+        )
+    )
+
+    release_record = (
+        content_idea.release
+    )
+
+
+    if not artist_can_access_release(
+        release_record
+    ):
+
+        flash(
+            "You do not have permission to access this release.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "releases.releases"
+            )
+        )
+
+
+    artist_block = block_artist_edit(
+        release_record
+    )
+
+    if artist_block:
+        return artist_block
+
+
+    concept = (
+        content_idea.concept
+    )
+
+
+    db.session.delete(
+        content_idea
+    )
+
+    db.session.flush()
+
+
+    activity = Activity(
+        release_id=release_record.id,
+        user_id=current_user.id,
+        action=(
+            f'Deleted content idea '
+            f'"{concept[:80]}"'
+        ),
+        entity_type="content_idea",
+        entity_id=None,
+    )
+
+
+    db.session.add(
+        activity
+    )
+
+    db.session.commit()
+
+
+    flash(
+        "Content idea deleted successfully.",
+        "success",
+    )
+
+
+    return redirect(
+        url_for(
+            "releases.release_detail",
+            release_id=release_record.id,
+        )
+        + "#marketing"
     )

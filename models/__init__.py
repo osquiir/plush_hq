@@ -16,3 +16,5 @@ from .comment import Comment
 from .calendar_event import CalendarEvent
 from .template_link import TemplateLink
 from .ad_campaign import AdCampaign
+from .release_writer import ReleaseWriter
+from .content_idea import ContentIdea
