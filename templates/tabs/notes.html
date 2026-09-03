@@ -117,9 +117,7 @@
 
                     {% if note.created_at %}
                         <small class="text-muted">
-                            {{ note.created_at.strftime(
-                                "%b %d, %Y at %I:%M %p"
-                            ) }}
+                            {{ note.created_at | pacific_time }}
                         </small>
                     {% endif %}
 

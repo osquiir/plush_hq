@@ -308,9 +308,7 @@
                         <div class="activity-item">
 
                             <small>
-                                {{ activity.created_at.strftime(
-                                    "%b %d, %Y at %I:%M %p"
-                                ) }}
+                                {{ activity.created_at | pacific_time }}
                             </small>
 
                             <p class="mb-1">

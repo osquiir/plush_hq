@@ -39,11 +39,7 @@
                             </div>
 
                             <small class="text-muted">
-
-                                {{ activity.created_at.strftime(
-                                    "%b %d, %Y • %I:%M %p"
-                                ) }}
-
+                                {{ activity.created_at | pacific_time }}
                             </small>
 
                         </div>

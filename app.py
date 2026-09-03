@@ -16,8 +16,43 @@ from routes.users import users_bp
 from routes.artists import artists_bp
 from routes.calendar import calendar_bp
 
+from zoneinfo import ZoneInfo
+from datetime import timezone
+
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# =========================================================
+# TIMEZONE
+# =========================================================
+
+PACIFIC_TIME = ZoneInfo(
+    "America/Los_Angeles"
+)
+
+
+@app.template_filter(
+    "pacific_time"
+)
+def pacific_time(value):
+
+    if value is None:
+        return ""
+
+    # Existing timestamps in Plush are stored as UTC
+    # but may be timezone-naive.
+    if value.tzinfo is None:
+        value = value.replace(
+            tzinfo=timezone.utc
+        )
+
+    local_time = value.astimezone(
+        PACIFIC_TIME
+    )
+
+    return local_time.strftime(
+        "%b %d, %Y at %I:%M %p"
+    )
 
 db.init_app(app)
 

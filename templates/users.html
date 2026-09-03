@@ -92,9 +92,7 @@
                                 </td>
 
                                 <td>
-                                    {{ user.created_at.strftime(
-                                        "%b %d, %Y"
-                                    ) }}
+                                    {{ user.created_at | pacific_time }}
                                 </td>
 
                             </tr>
