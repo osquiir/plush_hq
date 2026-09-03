@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h1 class="mb-1">
+            Release Calendar
+        </h1>
+
+        <p class="text-muted mb-0">
+            View scheduled release dates across all artists.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <!-- ================================================= -->
+        <!-- CALENDAR HEADER -->
+        <!-- ================================================= -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <a
+                href="{{ url_for(
+                    'calendar.calendar_view',
+                    year=previous_year,
+                    month=previous_month
+                ) }}"
+                class="btn btn-outline-dark"
+            >
+                ← Previous
+            </a>
+
+
+            <div class="text-center">
+
+                <h3 class="mb-0">
+                    {{ month_name }} {{ year }}
+                </h3>
+
+            </div>
+
+
+            <a
+                href="{{ url_for(
+                    'calendar.calendar_view',
+                    year=next_year,
+                    month=next_month
+                ) }}"
+                class="btn btn-outline-dark"
+            >
+                Next →
+            </a>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- WEEKDAY HEADER -->
+        <!-- ================================================= -->
+
+        <div class="row g-0 border-top border-start">
+
+            {% for day_name in [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ] %}
+
+                <div class="col">
+
+                    <div
+                        class="
+                            border-end
+                            border-bottom
+                            p-2
+                            text-center
+                            fw-semibold
+                            bg-light
+                        "
+                    >
+                        {{ day_name[:3] }}
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- CALENDAR BODY -->
+        <!-- ================================================= -->
+
+        {% for week in month_calendar %}
+
+            <div class="row g-0 border-start">
+
+                {% for day in week %}
+
+                    <div class="col">
+
+                        <div
+                            class="
+                                border-end
+                                border-bottom
+                                p-2
+                                position-relative
+                            "
+                            style="
+                                min-height: 140px;
+                                background:
+                                    {% if day == 0 %}
+                                        #f8f9fa
+                                    {% else %}
+                                        white
+                                    {% endif %};
+                            "
+                        >
+
+                            {% if day != 0 %}
+
+                                <div
+                                    class="
+                                        d-flex
+                                        justify-content-between
+                                        align-items-center
+                                        mb-2
+                                    "
+                                >
+
+                                    <span
+                                        class="
+                                            fw-semibold
+                                            {% if
+                                                today.year == year
+                                                and today.month == month
+                                                and today.day == day
+                                            %}
+                                                text-primary
+                                            {% endif %}
+                                        "
+                                    >
+                                        {{ day }}
+                                    </span>
+
+                                </div>
+
+
+                                {% if day in releases_by_day %}
+
+                                    <div class="d-flex flex-column gap-2">
+
+                                        {% for release in releases_by_day[day] %}
+
+                                            <a
+                                                href="{{ url_for(
+                                                    'releases.release_detail',
+                                                    release_id=release.id
+                                                ) }}"
+                                                class="
+                                                    text-decoration-none
+                                                    border
+                                                    rounded
+                                                    p-2
+                                                    text-dark
+                                                    bg-light
+                                                "
+                                            >
+
+                                                <div
+                                                    class="fw-semibold small"
+                                                    style="
+                                                        overflow-wrap: anywhere;
+                                                    "
+                                                >
+                                                    {{ release.title }}
+                                                </div>
+
+
+                                                <div class="text-muted small">
+                                                    {{ release.artist.name }}
+                                                </div>
+
+                                            </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

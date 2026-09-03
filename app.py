@@ -14,7 +14,7 @@ from routes.dashboard import dashboard_bp
 from routes.releases import releases_bp
 from routes.users import users_bp
 from routes.artists import artists_bp
-
+from routes.calendar import calendar_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -77,7 +77,9 @@ app.register_blueprint(
     artists_bp
 )
 
-
+app.register_blueprint(
+    calendar_bp
+)
 # =========================================================
 # LOCAL DEVELOPMENT
 # =========================================================

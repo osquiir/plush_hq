@@ -14,9 +14,15 @@
         Artists
     </a>
 
-    <a href="#">
-        Calendar
-    </a>
+    {% if not current_user.is_artist() %}
+
+        <a
+            href="{{ url_for('calendar.calendar_view') }}"
+        >
+            Calendar
+        </a>
+
+    {% endif %}
 
     {% if current_user.is_authenticated and current_user.is_admin() %}
 
