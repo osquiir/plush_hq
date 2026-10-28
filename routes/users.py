@@ -375,3 +375,153 @@ def create_user():
         "new_user.html",
         artists=artists,
     )
+
+# =========================================================
+# TOGGLE USER ACTIVE STATUS
+# =========================================================
+
+@users_bp.route(
+    "/<int:user_id>/toggle-active",
+    methods=["POST"],
+)
+@login_required
+@admin_required
+def toggle_user_active(user_id):
+
+    user = User.query.get_or_404(user_id)
+
+    if user.id == current_user.id:
+        flash(
+            "You cannot deactivate your own account.",
+            "danger",
+        )
+        return redirect(url_for("users.users"))
+
+    if user.active:
+        # Do not deactivate the last active admin.
+        if user.is_admin():
+
+            active_admins = User.query.filter_by(
+                role="admin",
+                active=True,
+            ).count()
+
+            if active_admins <= 1:
+                flash(
+                    "You cannot deactivate the last active admin.",
+                    "danger",
+                )
+                return redirect(url_for("users.users"))
+
+        user.active = False
+        message = "User deactivated successfully."
+
+    else:
+        user.active = True
+        message = "User reactivated successfully."
+
+    try:
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
+
+        flash(
+            "Unable to update user status.",
+            "danger",
+        )
+        return redirect(url_for("users.users"))
+
+    flash(message, "success")
+
+    return redirect(url_for("users.users"))
+
+# =========================================================
+# DELETE USER
+# =========================================================
+
+@users_bp.route(
+    "/<int:user_id>/delete",
+    methods=["POST"],
+)
+@login_required
+@admin_required
+def delete_user(user_id):
+
+    from models.activity import Activity
+
+    user = User.query.get_or_404(user_id)
+
+    # Prevent deleting your own account
+    if user.id == current_user.id:
+
+        flash(
+            "You cannot delete your own account.",
+            "danger",
+        )
+
+        return redirect(url_for("users.users"))
+
+    # Protect the last active administrator
+    if user.is_admin() and user.active:
+
+        active_admins = User.query.filter_by(
+            role="admin",
+            active=True,
+        ).count()
+
+        if active_admins <= 1:
+
+            flash(
+                "You cannot delete the last active administrator.",
+                "danger",
+            )
+
+            return redirect(url_for("users.users"))
+
+    # Preserve historical platform data
+    has_history = any([
+        Activity.query.filter_by(
+            user_id=user.id
+        ).first() is not None,
+
+        len(user.notes) > 0,
+
+        len(user.uploaded_files) > 0,
+
+        len(user.assigned_tasks) > 0,
+    ])
+
+    if has_history:
+
+        flash(
+            "This user has associated platform history. "
+            "Deactivate the account instead.",
+            "warning",
+        )
+
+        return redirect(url_for("users.users"))
+
+    try:
+
+        db.session.delete(user)
+        db.session.commit()
+
+    except Exception:
+
+        db.session.rollback()
+
+        flash(
+            "Unable to delete user. "
+            "The account may have associated records.",
+            "danger",
+        )
+
+        return redirect(url_for("users.users"))
+
+    flash(
+        "User permanently deleted.",
+        "success",
+    )
+
+    return redirect(url_for("users.users"))

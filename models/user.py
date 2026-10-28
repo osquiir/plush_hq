@@ -40,6 +40,17 @@ class User(UserMixin, db.Model):
         default="team",
     )
 
+    active = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+        server_default=db.true(),
+    )
+
+    @property
+    def is_active(self):
+        return bool(self.active)
+
     artist_id = db.Column(
         db.Integer,
         db.ForeignKey("artists.id"),

@@ -1,3 +1,4 @@
+
 from flask import (
     Blueprint,
     flash,
@@ -70,8 +71,11 @@ def login():
     )
 
 
-    # Email does not exist
-    if user is None:
+    # =====================================================
+    # VALIDATE CREDENTIALS
+    # =====================================================
+
+    if user is None or not user.check_password(password):
 
         flash(
             "Invalid email or password.",
@@ -83,11 +87,15 @@ def login():
         )
 
 
-    # Validate password against stored password hash
-    if not user.check_password(password):
+    # =====================================================
+    # CHECK ACCOUNT STATUS
+    # =====================================================
+
+    if not user.active:
 
         flash(
-            "Invalid email or password.",
+            "Your account has been deactivated. "
+            "Please contact an administrator.",
             "danger",
         )
 
@@ -96,8 +104,20 @@ def login():
         )
 
 
-    # Credentials are correct
-    login_user(user)
+    # =====================================================
+    # LOGIN USER
+    # =====================================================
+
+    if not login_user(user):
+
+        flash(
+            "Unable to sign in. Please contact an administrator.",
+            "danger",
+        )
+
+        return render_template(
+            "login.html"
+        )
 
 
     flash(
